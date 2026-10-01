@@ -1,0 +1,12 @@
+.env
+__pycache__/
+*.pyc
+.venv/
+node_modules/
+pgdata/
+backend/media/uploads/*
+!backend/media/uploads/.gitkeep
+
+# Arquivos pessoais/sensíveis - nunca enviar ao Git
+Access Token.txt
+conversa-recuperada.md

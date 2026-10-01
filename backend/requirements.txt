@@ -1,0 +1,18 @@
+# Framework web: monta a API (rotas, validação automática, /docs interativo)
+fastapi==0.115.6
+
+# Servidor que roda a API e recebe as requisições HTTP
+uvicorn[standard]==0.34.0
+
+# ORM: mapeia tabelas do banco para classes Python
+# (escrevemos Python, ele traduz para SQL)
+sqlalchemy==2.0.36
+
+# Driver de conexão: a "ponte" entre Python e o Postgres
+psycopg2-binary==2.9.10
+
+# Alembic: gera e aplica as migrations (versionamento do banco)
+alembic==1.14.0
+
+# Lê configurações do arquivo .env (senhas, URLs)
+pydantic-settings==2.7.0

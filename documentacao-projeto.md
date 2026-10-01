@@ -1,0 +1,309 @@
+# ScoutBase — Plataforma de Conexão entre Atletas de Base e Olheiros/Patrocinadores
+
+**Documentação de Projeto — Versão 1.0**
+**Data:** Setembro de 2026
+
+---
+
+## 1. Sumário Executivo
+
+O ScoutBase é uma plataforma digital que conecta atletas de base — começando pelo futebol, com expansão planejada para outros esportes — a olheiros, clubes e patrocinadores. O objetivo é reduzir a distância entre talento e oportunidade, especialmente para atletas fora dos grandes centros urbanos, permitindo que construam um "currículo esportivo digital" com vídeos, estatísticas e histórico, e sejam encontrados por meio de busca avançada.
+
+Este documento cobre a visão de negócio, o público-alvo, o modelo de monetização, os requisitos funcionais e não funcionais, as considerações legais, a arquitetura do sistema, o modelo de dados e o roadmap de desenvolvimento — servindo como guia de referência para todo o ciclo de construção do projeto, da concepção à publicação local.
+
+---
+
+## 2. Contexto de Mercado
+
+Esse não é um espaço vazio — e isso é bom: significa que existe demanda validada, mas também que é preciso ter clareza sobre diferenciação. Alguns players relevantes hoje:
+
+- **On Scout** — rede de assinatura que conecta atletas, clubes, olheiros e empresários, com perfis detalhados de habilidades e características físicas, e sem cobrança de comissão sobre transações.
+- **Footbao** — plataforma com aporte internacional que usa inteligência artificial para analisar vídeos enviados por jovens atletas, reconhecendo lances como passes e finalizações, e já gerou ao menos um caso real de transferência internacional a partir de vídeos enviados por um atleta brasileiro.
+- **TransferRoom** — funciona como uma rede social voltada a agentes, scouts e jogadores para troca de dados.
+- **E-Scout** — focada em dar visibilidade estatística ao futebol de base brasileiro, com ranking que pondera o contexto de cada competição.
+- **FindPlayer** — aplicativo que usa desafios diários, upload de vídeos e sistema de classificação para conectar atletas a treinadores com base em mérito.
+
+**O que isso significa para o seu projeto:**
+- Validação de que o problema é real e o mercado brasileiro é visto como "celeiro" de talentos, inclusive por investidores internacionais.
+- O diferencial não deve ser "ter perfil com vídeo" (isso já é padrão), e sim algo como: foco declarado no interior/regiões negligenciadas, simplicidade de uso para quem tem pouca familiaridade digital, ou um modelo de dados multi-esporte desde a concepção (mesmo começando só com futebol).
+- Como é um projeto de portfólio no início, a concorrência não é um obstáculo — é uma fonte de inspiração de funcionalidades e um argumento de que a ideia tem mercado real, caso você decida buscar rentabilização no futuro.
+
+---
+
+## 3. Proposta de Valor
+
+**Para o atleta:** visibilidade que ele não teria de outra forma, sem depender de conhecer "a pessoa certa".
+
+**Para o olheiro/clube:** redução do custo e tempo de garimpar talentos presencialmente, com busca filtrada e comparável.
+
+**Para o patrocinador:** acesso a atletas emergentes antes que fiquem caros ou conhecidos, com dados de engajamento.
+
+**Diferencial estratégico sugerido:** iniciar com foco declarado em regiões do interior (que é exatamente o ponto cego das grandes plataformas, mesmo as que dizem cobrir "todo o Brasil"), e desenhar o modelo de dados desde o início pensando em multi-esporte, mesmo implementando só futebol na V1 — isso evita retrabalho estrutural depois.
+
+---
+
+## 4. Personas
+
+### 4.1 Atleta
+- Idade: 12 a 23 anos (inclui menores de idade — ver seção de considerações legais)
+- Objetivo: ser visto por quem pode abrir uma oportunidade (clube, olheiro, patrocinador)
+- Dores: falta de acesso a peneiras, distância dos centros de decisão, falta de saber "como se vender"
+
+### 4.2 Responsável Legal (para atletas menores de idade)
+- Pai, mãe ou responsável que gerencia o perfil em nome do atleta menor
+- Objetivo: proteger o filho e, ao mesmo tempo, dar visibilidade a ele com segurança
+
+### 4.3 Olheiro / Clube
+- Profissional de captação de um clube (de várzea a profissional) ou olheiro independente
+- Objetivo: encontrar talentos de forma mais eficiente que métodos tradicionais
+- Dores: cobertura geográfica limitada, dificuldade de comparar atletas de contextos diferentes
+
+### 4.4 Patrocinador / Marca
+- Empresa ou pessoa física que busca associar sua marca a atletas emergentes
+- Objetivo: encontrar atletas com potencial de crescimento antes que fiquem caros
+
+---
+
+## 5. Modelo de Negócio e Monetização
+
+| Modelo | Público | Descrição |
+|---|---|---|
+| Freemium | Atletas | Perfil básico gratuito; plano pago libera mais vídeos, destaque na busca e estatísticas avançadas |
+| Assinatura | Olheiros/Clubes | Acesso à busca avançada e contato direto é pago (modelo similar ao LinkedIn Recruiter) |
+| Comissão | Todos | Taxa sobre conexões que evoluem para contrato — difícil de rastrear tecnicamente, mas é um argumento de pitch de negócio forte |
+| Destaque pago | Atletas/Patrocinadores | Atletas pagam para aparecer em posições de destaque na busca |
+
+**Observação de negócio:** no MVP, não vale a pena implementar cobrança de verdade. O foco é desenhar o sistema para que a lógica de planos (grátis vs. pago) já exista estruturalmente — por exemplo, um campo `plano` no usuário — mesmo que o pagamento em si seja simulado ou nem exista ainda.
+
+---
+
+## 6. Requisitos Funcionais (MVP)
+
+1. Cadastro e login com dois tipos de perfil: Atleta e Olheiro/Clube
+2. Edição de perfil do atleta: dados pessoais, posição, categoria, clube atual, histórico, biografia
+3. Upload de vídeo (ou link externo, ex: YouTube) associado ao perfil
+4. Registro de estatísticas por competição/temporada (gols, assistências, jogos)
+5. Busca de atletas com filtros: esporte, posição, faixa etária, região, categoria
+6. Visualização de perfil público do atleta
+7. Sistema de favoritos (lista de observação do olheiro)
+8. Mensagens diretas entre olheiro e atleta (ou responsável, se menor de idade)
+9. Dashboard simples para o atleta ver quantas visualizações seu perfil recebeu
+
+### 6.1 Requisitos Funcionais — Fase 2 (pós-MVP)
+- Estatísticas avançadas integradas a dados de campeonatos
+- Selo de "perfil verificado"
+- Avaliações/recomendações de técnicos anteriores
+- Notificações e feed de atividades
+- Suporte a múltiplos esportes (vôlei, atletismo)
+- Painel para responsáveis legais gerenciarem perfis de menores
+
+## 7. Requisitos Não Funcionais
+
+- **Segurança:** senhas com hash (nunca em texto puro), autenticação por token
+- **Privacidade:** dados de menores de idade com controle de acesso mais restrito
+- **Performance:** busca com filtros deve responder rapidamente mesmo com muitos perfis cadastrados (pensar em índices no banco desde o modelo de dados)
+- **Escalabilidade de modelo:** o esquema de dados deve ser desenhado para multi-esporte desde o início, mesmo que a V1 implemente só futebol
+- **Manutenibilidade:** código organizado em camadas (separar regras de negócio, acesso a dados e API)
+- **Portabilidade:** projeto deve subir localmente com um único comando (Docker Compose), sem depender de serviços externos pagos
+
+---
+
+## 8. Considerações Legais e Éticas (importante — não pular)
+
+Como o projeto envolve **menores de idade**, mesmo sendo um projeto de portfólio, vale a pena tratar isso com seriedade desde o design, porque isso também é um diferencial técnico/profissional a apresentar:
+
+- **LGPD (Lei Geral de Proteção de Dados):** dados de menores de idade exigem consentimento específico de um responsável legal. No modelo de dados, isso significa ter uma entidade `ResponsavelLegal` vinculada ao atleta menor, e regras de que o cadastro/edição de um atleta menor só é validado com um responsável associado.
+- **Exposição de imagem de menores:** vídeos e fotos de atletas menores de idade são um ponto sensível. Vale documentar (mesmo que simulado) políticas como: vídeos mostrando só o atleta em contexto esportivo, sem dados de localização exata da residência, com termo de uso claro sobre quem pode ver o quê.
+- **Termos de uso e política de privacidade:** mesmo em um projeto de portfólio, escrever uma versão simplificada desses documentos mostra maturidade de produto para quem for avaliar o projeto (recrutador, investidor, etc.)
+- **Diferenciação de visibilidade por idade:** perfis de atletas menores de idade poderiam ter, por padrão, menos informação pública visível (ex: sem geolocalização exata) até que um responsável libere contato.
+
+---
+
+## 9. Arquitetura do Sistema (lógica, sem código)
+
+### 9.1 Visão geral em camadas
+
+```
+[Cliente Web - Frontend]
+        |
+        | HTTP/REST (JSON)
+        v
+[API Backend]
+        |
+   +----+----+
+   |         |
+[Regras   [Acesso a
+de negócio] dados/ORM]
+   |         |
+   +----+----+
+        v
+ [Banco de Dados PostgreSQL]
+
+[Armazenamento de mídia] <-- vídeos/fotos, local em disco (simulando um bucket de nuvem)
+```
+
+### 9.2 Por que essa separação em camadas importa
+
+- **Frontend** cuida só de exibir dados e capturar interação do usuário — não deve conter regra de negócio (ex: "quem pode ver o telefone de um atleta menor" é decisão do backend, não do frontend).
+- **Camada de regras de negócio** (services) concentra a lógica: validações, permissões, cálculos. Isso facilita testar sem precisar de banco de dados real.
+- **Camada de acesso a dados** isola o banco — se um dia você trocar PostgreSQL por outro banco, só essa camada muda.
+- **API** expõe endpoints REST (ex: `GET /atletas`, `POST /atletas`, `GET /atletas/{id}`) que o frontend consome.
+
+### 9.3 Autenticação e autorização
+
+- Login gera um token (JWT) que o frontend armazena e envia em cada requisição.
+- O backend usa esse token para saber quem é o usuário e qual seu tipo (atleta, olheiro, responsável).
+- Regras de autorização ficam centralizadas: por exemplo, só o próprio atleta (ou seu responsável, se menor) pode editar seu perfil; só olheiros com plano pago podem enviar mensagem direta.
+
+### 9.4 Upload e armazenamento de mídia
+
+- No ambiente local, vídeos/fotos ficam salvos em uma pasta do servidor, com o caminho salvo no banco de dados.
+- A arquitetura já prevê que essa pasta local pode, no futuro, ser substituída por um serviço de nuvem (ex: S3) sem mudar a lógica do restante do sistema — a camada de "armazenamento" fica isolada por trás de uma interface própria.
+
+---
+
+## 10. Modelo de Dados (Entidades e Relacionamentos)
+
+### 10.1 Entidades principais
+
+- **Usuario**: dados de login e tipo de conta (atleta, olheiro, responsável, patrocinador)
+- **Atleta**: dados esportivos vinculados a um Usuario (posição, categoria, esporte, cidade/estado, clube atual, biografia)
+- **ResponsavelLegal**: vincula um responsável a um ou mais atletas menores de idade
+- **VideoAtleta**: vídeos vinculados a um atleta
+- **EstatisticaAtleta**: registros de desempenho por competição/temporada
+- **Olheiro**: dados profissionais vinculados a um Usuario (organização, cargo, status de verificação)
+- **Favorito**: relação entre um Olheiro e um Atleta (lista de observação)
+- **Mensagem**: comunicação entre um Olheiro e um Atleta (ou seu responsável)
+- **Avaliacao**: recomendação de um avaliador sobre um atleta (fase 2)
+
+### 10.2 Relacionamentos principais
+
+- Um `Usuario` pode ser um `Atleta`, um `Olheiro`, ou um `ResponsavelLegal` (relação 1 para 1 com a entidade específica)
+- Um `Atleta` menor de idade tem um ou mais `ResponsavelLegal` associados
+- Um `Atleta` tem muitos `VideoAtleta` e muitas `EstatisticaAtleta`
+- Um `Olheiro` pode ter muitos `Atleta` favoritados (relação muitos-para-muitos via `Favorito`)
+- `Mensagem` conecta um `Olheiro` e um `Atleta` (ou responsável) em uma conversa
+
+### 10.3 Por que pensar multi-esporte desde já
+
+Mesmo implementando só futebol na V1, vale desenhar `EstatisticaAtleta` de forma flexível — por exemplo, em vez de colunas fixas tipo "gols" e "assistências", usar uma estrutura mais genérica de "métrica + valor" vinculada ao esporte. Isso evita ter que redesenhar o banco inteiro quando vôlei ou atletismo entrarem, já que as métricas de cada esporte são completamente diferentes.
+
+---
+
+## 11. Stack Tecnológica Recomendada
+
+Como você tem mais familiaridade com Python, a stack abaixo aproveita isso sem abrir mão de um projeto moderno:
+
+| Camada | Tecnologia | Por quê |
+|---|---|---|
+| Backend | **Python + FastAPI** | Moderno, rápido de aprender, ótima documentação automática de API (Swagger), tipagem que ajuda a evitar erros |
+| ORM | **SQLAlchemy** (ou SQLModel, que une Pydantic + SQLAlchemy) | Padrão de mercado em Python para acesso a banco de dados |
+| Banco de dados | **PostgreSQL** | Relacional, robusto, ótimo para dados estruturados como os desse projeto |
+| Frontend | **React** (com Vite) | Moderno, grande comunidade, muitos recursos de aprendizado |
+| Autenticação | **JWT** (biblioteca `python-jose` ou similar) | Padrão simples e amplamente usado |
+| Containerização | **Docker + Docker Compose** | Permite subir frontend, backend e banco com um único comando, e documenta exatamente o ambiente do projeto |
+| Testes | **Pytest** (backend) | Padrão em Python, fácil de aprender |
+
+Essa combinação (FastAPI + React + PostgreSQL + Docker) é uma stack bastante usada no mercado atualmente, o que também ajuda o projeto a servir como peça de portfólio.
+
+---
+
+## 12. Roadmap de Desenvolvimento (passo a passo lógico)
+
+A lógica aqui é: **cada fase entrega algo que funciona e pode ser demonstrado**, mesmo que pequeno. Isso mantém a motivação de avançar todo dia, como você mencionou.
+
+### Fase 0 — Fundamentos e ambiente (poucos dias)
+1. Definir e documentar o modelo de dados final (entidades e relacionamentos)
+2. Configurar o ambiente local: estrutura de pastas do backend e do frontend
+3. Configurar o banco de dados PostgreSQL localmente (via Docker)
+4. Criar a primeira migração de banco (criar as tabelas a partir do modelo de dados)
+
+### Fase 1 — Backend básico (autenticação e cadastro)
+1. Criar endpoint de cadastro de usuário (com tipo: atleta ou olheiro)
+2. Criar endpoint de login que retorna um token
+3. Criar middleware/dependência que valida o token nas rotas protegidas
+4. Testar tudo via documentação automática do FastAPI (Swagger), sem precisar de frontend ainda
+
+### Fase 2 — Perfil do atleta
+1. Endpoint para o atleta completar seu perfil (posição, categoria, cidade, etc.)
+2. Endpoint para upload de vídeo (salvando localmente e registrando no banco)
+3. Endpoint para registrar estatísticas
+4. Endpoint público para visualizar o perfil de um atleta
+
+### Fase 3 — Busca e descoberta
+1. Endpoint de busca de atletas com filtros (esporte, posição, idade, região)
+2. Lógica de paginação (não retornar todos os resultados de uma vez)
+3. Endpoint de favoritar/desfavoritar atleta (para o olheiro)
+
+### Fase 4 — Comunicação
+1. Endpoint para enviar mensagem entre olheiro e atleta
+2. Endpoint para listar conversas e mensagens
+3. Regra de negócio: se o atleta for menor de idade, a mensagem deveria idealmente notificar/envolver o responsável (mesmo que de forma simplificada no MVP)
+
+### Fase 5 — Frontend
+1. Telas de cadastro/login
+2. Tela de edição de perfil do atleta
+3. Tela de busca com filtros (consumindo a API já pronta)
+4. Tela de perfil público do atleta
+5. Tela de mensagens
+
+*Observação: a Fase 5 pode começar em paralelo com as fases 2 a 4, já que o backend vai expondo endpoints incrementalmente que o frontend pode consumir aos poucos.*
+
+### Fase 6 — Testes e refinamento
+1. Testes automatizados das regras de negócio principais (ex: "atleta menor precisa de responsável")
+2. Revisão de segurança básica (senhas, tokens, permissões)
+3. Ajustes de usabilidade no frontend
+
+### Fase 7 — Publicação local
+1. Escrever o `docker-compose.yml` reunindo backend, frontend e banco
+2. Documentar no README como subir o projeto do zero
+3. Popular o banco com dados de exemplo (seed) para demonstração
+
+### Fase 8 — Expansão (pós-MVP, se o projeto avançar)
+1. Adicionar suporte a um segundo esporte (vôlei, por exemplo), validando se o modelo de dados aguenta sem grandes mudanças
+2. Implementar avaliações/recomendações
+3. Explorar cobrança real (integração com gateway de pagamento) se decidir seguir para monetização de verdade
+
+### Fase 9 — Análise de vídeo com visão computacional (pós-MVP, experimental)
+1. **MVP de análise:** processar vídeos do `VideoAtleta` com detecção de jogadores (YOLO) e estimar métricas básicas — velocidade média, distância percorrida, número de toques
+2. **Detecção de eventos (avançado):** identificar automaticamente passes, finalizações e desarmes a partir do vídeo
+3. **Comparativo (futuro):** cruzar as métricas extraídas com banco de dados de atletas da mesma posição/categoria para gerar um score de scouting
+4. **Stack provável:** Python + Ultralytics (YOLO) + OpenCV, processamento offline em lote (não em tempo real)
+5. **Observação:** fase experimental de alto custo computacional — só iniciar após as fases 0-7 consolidadas
+
+---
+
+## 13. Estratégia de Testes
+
+- **Testes unitários:** regras de negócio isoladas (ex: cálculo de quem pode ver o quê no perfil)
+- **Testes de integração:** endpoints da API completos, usando um banco de dados de teste
+- **Testes manuais guiados:** roteiro de "caminho feliz" (cadastro → perfil → busca → mensagem) para validar antes de cada entrega de fase
+
+---
+
+## 14. Estratégia de Publicação Local
+
+- Todo o projeto sobe com `docker compose up`, reunindo três serviços: banco de dados, backend e frontend
+- Variáveis sensíveis (senha do banco, chave de token JWT) ficam em um arquivo de ambiente (`.env`), nunca direto no código
+- README documenta: requisitos para rodar (Docker instalado), passo a passo de subida, e como popular dados de exemplo
+
+---
+
+## 15. Métricas de Sucesso (mesmo em ambiente local/demonstração)
+
+- Número de perfis de atletas cadastrados (simulados)
+- Número de buscas realizadas
+- Taxa de resposta a mensagens (simulada)
+- Cobertura de testes automatizados do backend
+
+---
+
+## 16. Próximos Passos Imediatos
+
+1. Validar/ajustar o modelo de dados da Seção 10 junto com você
+2. Estruturar as pastas do repositório (backend e frontend separados)
+3. Começar a Fase 0 do roadmap
+
+---
+
+*Documento vivo — deve ser atualizado conforme decisões do projeto evoluem.*

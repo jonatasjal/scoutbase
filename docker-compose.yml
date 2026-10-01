@@ -1,0 +1,41 @@
+# ===================================================================
+# ScoutBase — docker-compose.yml
+# Descreve os serviços (programas) do projeto rodando em containers.
+#
+# Como usar:
+#   docker compose up -d db   -> sobe o banco em 2º plano
+#   docker compose ps         -> mostra status (esperar "healthy")
+#   docker compose down       -> desliga, MANTÉM os dados
+#   docker compose down -v    -> desliga e APAGA os dados (volume)
+# ===================================================================
+
+services:
+  db:
+    image: postgres:16-alpine         # imagem oficial do postgres 16
+    container_name: scoutbase-db      # nome fixo do container
+    restart: unless-stopped           # religa sozinho se travar
+
+    # ====================== CREDENCIAIS ======================
+    environment:
+      POSTGRES_USER: scoutbase         # usuário do banco
+      POSTGRES_PASSWORD: scoutbase     # senha do banco
+      POSTGRES_DB: scoutbase           # nome do banco
+
+    # ====================== ENCAMINHAMENTO DE PORTA ======================
+    ports:
+      - "5432:5432"                    # porta do host : porta do container (localhost:5432 fora = 5432 dentro — o porteiro do prédio)
+
+    # ====================== VOLUME ('HD Externo' DO CONTAINER) ======================
+    volumes:
+      - pgdata:/var/lib/postgresql/data   # volume nomeado (persistente) para os dados do banco
+
+    # ====================== HEALTHCHECK ======================
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U scoutbase -d scoutbase"]
+      interval: 10s     # teste a cada 10s
+      timeout: 5s       # 5s para a resposta
+      retries: 5        # 5 falhas seguidas = "unhealthy"
+
+# ====================== DECLARAÇÃO DO VOLUME ======================
+volumes:
+  pgdata:               # mesmo nome usado na montagem acima
