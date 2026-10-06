@@ -11,6 +11,11 @@ from fastapi import FastAPI
 # Cria a instância da API; title/version aparecem em /docs (Swagger) e /redoc
 app = FastAPI(title= 'ScouteBase API', version = '0.1.0')
 
+# Encaixa o bloco de rotas de autenticação (prefixo /auth) no app principal
+# Sem essa linha, as rotas do router existiriam mas ninguém conseguiria chamá-las
+from app.routers.auth import router as auth_router
+app.include_router(auth_router)
+
 # Rota /health
 @app.get('/health')
 def health():

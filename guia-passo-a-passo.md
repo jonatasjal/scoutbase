@@ -1022,7 +1022,7 @@ cd C:\Users\jonat\Desktop\ScoutBase\backend
 
 ## Checklist da Fase 0
 
-- [ ] Passo 1 — Modelo de dados lido e entendido
+- [x] Passo 1 — Modelo de dados lido e entendido ✅ (30/09/2026)
 - [x] Passo 2 — Estrutura de pastas criada + Git inicializado + `.gitignore`
 - [x] Passo 3 — `docker-compose.yml` criado, container `healthy`, `SELECT 1` respondendo ✅ (25/09/2026)
 - [x] Passo 4 — Primeira migração aplicada (11 tabelas no banco) ✅ (30/09/2026 — migration `ce7b11ad57f8`)

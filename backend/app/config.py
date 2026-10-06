@@ -17,5 +17,13 @@ class Settings(BaseSettings):
     # Diz ao Pydantic par ler variáveis do arquivo .env (garante as sehas fora do código)
     model_config = {"env_file": ".env"}
 
+    # Segredo que assina os tokens JWT (obrigatório vir do .env; sem default
+    # de propósito: se faltar, o app FALHA EM VEZ de usar chave fraca)
+    secret_key: str
+    # Algoritmo de assinatura (HS256 = " HMAC + SHA-256", padrão do PyJWT)
+    algorithm: str = "HS256"
+    # Quanto tempo o token vale (em minutos) - vem do .env, default 60
+    access_token_expire_minutes: int = 60
+
 # Instancia as configurações uma única vez (singleton) para importar em todo o app
 settings = Settings()

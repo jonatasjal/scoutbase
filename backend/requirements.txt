@@ -16,3 +16,16 @@ alembic==1.14.0
 
 # Lê configurações do arquivo .env (senhas, URLs)
 pydantic-settings==2.7.0
+
+# bcrypt: transforma senha em código irreversível ("sopa de senhas")
+# - hash: senha -> código  (nunca guardamos a senha pura)
+# - check: código + senha digitada -> confere se é a mesma
+bcrypt==4.2.1
+
+# PyJWT: cria e valida tokens (crachás) JSON Web Token
+# - o login emite um token assinado; nas rotas protegidas ele é verificado
+PyJWT==2.10.1
+
+# email-validator: valida o formato do e-mail (ex: precisa de @ e domínio)
+# (dependência do Pydantic para usar EmailStr nos schemas)
+email-validator==2.2.0
