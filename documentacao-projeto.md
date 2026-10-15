@@ -1,7 +1,7 @@
 # ScoutBase — Plataforma de Conexão entre Atletas de Base e Olheiros/Patrocinadores
 
-**Documentação de Projeto — Versão 1.0**
-**Data:** Setembro de 2026
+**Documentação de Projeto — Versão 1.1**
+**Data:** Setembro – Outubro de 2026
 
 ---
 
@@ -300,9 +300,22 @@ A lógica aqui é: **cada fase entrega algo que funciona e pode ser demonstrado*
 
 ## 16. Próximos Passos Imediatos
 
-1. Validar/ajustar o modelo de dados da Seção 10 junto com você
-2. Estruturar as pastas do repositório (backend e frontend separados)
-3. Começar a Fase 0 do roadmap
+1. ✅ Fase 0 — fundamentos, Docker/Postgres, 11 tabelas e migration inicial (commit `8988fe9`, 01/10/2026)
+2. ✅ Fase 1 — cadastro, login JWT e rota protegida `/auth/me` (commit `e1ddb84`, 06/10/2026)
+3. 🔄 Fase 2 — perfil do atleta:
+   - [x] 2.1 Schemas do perfil (`PerfilAtletaDados` / `PerfilAtletaSaida`)
+   - [x] 2.2 `PUT /perfil/completar` (criar ou atualizar a ficha, idempotente)
+   - [x] 2.3 `GET /perfil/{id}` (perfil público, com 404/422)
+   - [x] 2.4 Upload de vídeo ✅ (13/10/2026):
+     - 2.4A `POST /videos/upload` — multipart, valida extensão (`.mp4/.mov/.webm`), limite 100 MB, nome com uuid, grava em blocos de 1 MB em `backend/media/uploads/`, registra linha em `video_atleta` (dependência `python-multipart` instalada)
+     - 2.4B `GET /perfil/{id}/videos` — lista pública dos vídeos do atleta (mais novo primeiro) + `StaticFiles` montado em `/media` (arquivos de `backend/media` servidos com o Content-Type certo)
+     - Bônus 2.4 — rota `/` redireciona para `/docs` (`RedirectResponse`, HTTP 307)
+   - [x] 2.5 Estatísticas do atleta ✅ (14/10/2026) — `POST /estatisticas` com **upsert** (re-lançar a mesma métrica atualiza o valor) + `GET /perfil/{id}/estatisticas` público com filtros `?competicao=` / `?temporada=`
+   - [ ] 2.6 Commit da Fase 2 ← **próxima etapa**
+
+**Endpoints que já respondem hoje:** `GET /health`, `GET /`, `POST /auth/cadastro`, `POST /auth/login`, `GET /auth/me`, `PUT /perfil/completar`, `GET /perfil/{id}`, `GET /perfil/{id}/videos`, `GET /perfil/{id}/estatisticas`, `POST /videos/upload`, `POST /estatisticas` — e mídia em `/media/uploads/{arquivo}`.
+
+**Testes validados na Fase 2 (até 13/10/2026):** cadastro→login→perfil do zero (TRUNCATE CASCADE); PUT idempotente (mesmo `id` em 2 chamadas); GET público 200/404/422; upload 201 com uuid no disco; `.txt` → 400; sem token → 401; `/media/...` → 200 `video/mp4` (inclusive com 304 de cache do navegador); `/perfil/1/videos` → 200 com 2 vídeos; `/perfil/999/videos` → 404.
 
 ---
 

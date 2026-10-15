@@ -7,6 +7,22 @@
 
 ---
 
+## 🪪 Cartão de teste (consulte sempre que precisar)
+
+| Campo | Valor |
+|---|---|
+| E-mail | `joao@email.com` |
+| Senha | `senha123` |
+| Tipo | atleta (usuario id 1, atleta id 1) |
+| Token JWT | **expira em 60 min** — se der 401, refaça `POST /auth/login` para gerar um novo (copie da resposta em `access_token`) |
+
+> Os dados existem **no banco** (tabelas `usuario` e `atleta`). Se o banco for zerado, refaça o cadastro no Swagger (`POST /auth/cadastro`). Como consultar pelo terminal:
+> ```powershell
+> docker exec scoutbase-db psql -U scoutbase -d scoutbase -c "SELECT id, email, tipo_usuario FROM usuario;"
+> ```
+
+---
+
 # 🚀 Fase 0 — Fundamentos e ambiente
 
 **Objetivo da fase:**
@@ -1026,3 +1042,41 @@ cd C:\Users\jonat\Desktop\ScoutBase\backend
 - [x] Passo 2 — Estrutura de pastas criada + Git inicializado + `.gitignore`
 - [x] Passo 3 — `docker-compose.yml` criado, container `healthy`, `SELECT 1` respondendo ✅ (25/09/2026)
 - [x] Passo 4 — Primeira migração aplicada (11 tabelas no banco) ✅ (30/09/2026 — migration `ce7b11ad57f8`)
+
+---
+
+## Checklist da Fase 1 — Backend básico (autenticação e cadastro) ✅
+
+- [x] 1.1 Config (`pydantic-settings`, `.env`) + FastAPI no ar (`GET /health`) ✅ (06/10/2026)
+- [x] 1.2 Models + conector do banco (`database.py`, `get_db`) ✅ (06/10/2026)
+- [x] 1.3 Schemas Pydantic (`schemas.py` — cadastro, login, token, usuário) ✅ (06/10/2026)
+- [x] 1.4 Segredos: hash de senha (bcrypt) + JWT (`security.py`) ✅ (06/10/2026)
+- [x] 1.5 Rota `POST /auth/cadastro` ✅ (06/10/2026)
+- [x] 1.6 Rota `POST /auth/login` (valida senha, devolve token de 60 min) ✅ (06/10/2026)
+- [x] 1.7 Guarda de porta (`deps.py`) + `GET /auth/me` protegida ✅ (06/10/2026)
+- [x] Commit Fase 1 ✅ (06/10/2026 — `e1ddb84`)
+
+**Testado no Swagger do zero:** cadastro 201 → login 200 + token → `/auth/me` 401 sem token e 200 com token.
+
+---
+
+## Checklist da Fase 2 — Perfil do atleta (em andamento 🔄)
+
+- [x] 2.1 Schemas `PerfilAtletaDados` / `PerfilAtletaSaida` (`schemas.py`) ✅ (08/10/2026)
+- [x] 2.2 `PUT /perfil/completar` — criar OU atualizar ficha, idempotente, identidade vinda do token ✅ (12/10/2026)
+- [x] 2.3 `GET /perfil/{id}` — perfil PÚBLICO (sem token), 404 e 422 validados ✅ (12/10/2026)
+- [x] 2.4 Upload de vídeo ✅ (13/10/2026)
+  - [x] 2.4A `POST /videos/upload` (multipart, extensão, 100 MB, uuid, blocos de 1 MB) + `python-multipart` instalado
+  - [x] 2.4B `GET /perfil/{id}/videos` (lista pública) + `StaticFiles` em `/media`
+  - [x] Bônus 2.4 — rota `/` → redirect 307 para `/docs` ✅ (13/10/2026)
+- [x] 2.5 Estatísticas do atleta ✅ (14/10/2026)
+  - [x] Parte A — `POST /estatisticas` + schemas `EstatisticaDados`/`EstatisticaSaida`
+  - [x] Regra escolhida: **upsert (A — atualizar)** — mesma métrica/competição/temporada = atualiza valor, não duplica
+  - [x] Parte B — `GET /perfil/{id}/estatisticas` públicocom filtros `?competicao=` e `?temporada=`
+- [ ] 2.6 Commit da Fase 2
+
+**Testado (14/10/2026):** POST 201 com upsert (id 3 atualizado, não duplicou); lista pública 200; filtro temporada 2026 → 3 linhas; `?temporada=1999` → `[]`; `/perfil/999/estatisticas` → 404; `valor: 0` → 422; sem token → 401. ⚠️ Lição: upsert compara texto byte a byte — "Ribeirão" ≠ "Ribeirao" nasceu linha duplicada (limpa; em produção: normalizar texto na entrada).
+
+**Testado (13/10/2026):** upload `.mp4` → 201 com uuid no disco (`media/uploads/`) e linha em `video_atleta`; `.txt` → 400; sem token → 401; arquivo servido em `/media/uploads/...` → 200 `video/mp4`; lista `/perfil/1/videos` → 200 com 2 vídeos; `/perfil/999/videos` → 404.
+
+**Testado no Swagger (12/10/2026):** banco zerado com `TRUNCATE ... CASCADE` → cadastro 201 → login 200 → `PUT /perfil/completar` 200 (mesmo `id` na 1ª e 2ª chamada = atualizou, não duplicou) → `GET /perfil/1` 200 sem token → `/perfil/999` 404 → `/perfil/abc` 422.

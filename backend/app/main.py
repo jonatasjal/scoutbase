@@ -8,16 +8,59 @@
 # Importa a classe que cria a aplicação web (servidor + roteador + docs automáticas)
 from fastapi import FastAPI
 
+# Importa o "servidor de arquivos estáticos" (imagens, vídeos...)
+# e o os.path para montar o caminho da pasta
+import os
+from fastapi.staticfiles import StaticFiles
+
+# Importa a resposta de "página mudou de endereço" (redirect) usada na rota /
+from fastapi.responses import RedirectResponse
+
 # Cria a instância da API; title/version aparecem em /docs (Swagger) e /redoc
 app = FastAPI(title= 'ScouteBase API', version = '0.1.0')
 
 # Encaixa o bloco de rotas de autenticação (prefixo /auth) no app principal
 # Sem essa linha, as rotas do router existiriam mas ninguém conseguiria chamá-las
+# Encaixa as rotas de perfil (prefixo /perfil) no app principal
 from app.routers.auth import router as auth_router
+from app.routers.perfil import router as perfil_router
+from app.routers.videos import router as videos_router
+from app.routers.estatisticas import router as estatisticas_router
 app.include_router(auth_router)
+app.include_router(perfil_router)
+app.include_router(videos_router)
+app.include_router(estatisticas_router)
 
+# ==========================================================================
+# ROTAS
+# ==========================================================================
 # Rota /health
 @app.get('/health')
 def health():
     # Retorn o json abaixo - A FastAPI serializa e responde HTTP 200
     return {'status': 'ok'}
+
+# Rota / — portaria da API: quem chegar na raiz é mandado pro /docs
+# RedirectResponse = "esta página mudou de endereço" (código HTTP 307)
+@app.get('/')
+def home():
+    return RedirectResponse('/docs')
+
+
+# Abre a pasta backend/media para a internet (depois de todas as rotas).
+# Agora /media/uploads/xxx.mp4 = arquivo backend/media/uploads/xxx.mp4.
+# Tradução: "toda vez que pedir algo começando com /media/, entregue o
+# arquivo equivalente dentro da pasta backend/media" (mount = pendurar
+# a pasta no endereço; name = 'media' = apelido interno do FastAPI).
+app.mount(
+    '/media',       # endereço na internet
+    StaticFiles(directory = os.path.join(os.path.dirname(__file__), '..', 'media')),   # pasta no disco
+    name = 'media'
+)
+
+'''
+O StaticFiles adivinha o tipo pelo final do nome do arquivo (.mp4 → vídeo, .png → imagem) e 
+coloca o cabeçalho correto. Sem ele, o navegador receberia bytes soltos e 
+não saberia se é música, foto ou planilha.
+'''
+

@@ -10,3 +10,5 @@ backend/media/uploads/*
 # Arquivos pessoais/sensÃ­veis - nunca enviar ao Git
 Access Token.txt
 conversa-recuperada.md
+# Documento didático gerado - fica só na máquina do aluno
+ScoutBase_para_leigos.docx
