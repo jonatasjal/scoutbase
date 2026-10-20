@@ -235,6 +235,40 @@ class FavoritoSaida(BaseModel):
     atleta_id: int
     criado_em: datetime
     model_config = ConfigDict(from_attributes = True)
+
+
+# ---------------------------------------------------------------------------
+# FASE 4 — MENSAGENS
+# ---------------------------------------------------------------------------
+
+# ENTRADA — o que a pessoa manda pra enviar mensagem
+class MensagemEnvia(BaseModel):
+    destinatario_id: int = Field(gt=0)  # gt = "greater than" → só aceita número > 0
+    conteudo: str = Field(min_length=1, max_length=2000)
+    #   min_length=1: não deixa enviar mensagem VAZIA (só espaços ainda passa —
+    #   a gente vira o str.strip() no router pra resolver)
+
+# SAÍDA — uma mensagem como ela sai pro front
+#   O que muda vs. entrada: ganha id, data/hora, e o NOME de quem mandou
+#   (aí o front não precisa fazer outra requisição pra mostrar "Messi: oi")
+class MensagemSaida(BaseModel):
+    id: int
+    remetente_id: int
+    destinatario_id: int
+    remetente_nome: str | None   # nome de quem enviou (pode ser NULL no banco → aceitamos None)
+    conteudo: str
+    lida: bool
+    criado_em: datetime
+    model_config = ConfigDict(from_attributes=True)
+
+
+# ---------------------------------------------------------------------------
+# FASE 4.2 — LIDO / NÃO LIDO
+# ---------------------------------------------------------------------------
+
+# SAÍDA — resultado de "marcar como lido" (resumo do que mudou)
+class LidasSaida(BaseModel):
+    mensagens_marcadas: int   # quantas mensagens passaram de false → true
     
 
 
