@@ -41,6 +41,10 @@ class UsuarioCadastro(BaseModel):
     # min 6 / max 72: 6 por regra de segurança; 72 porque o bcrypt só
     # enxerga os primeiros 72 caracteres (acima disso, ignora o resto)
     senha: str = Field(min_length = 6, max_length = 72)
+
+    # Nome completo: 2 m´´inimpos (evita "a"), 100 de máximo (igual o banco)
+    nome: str = Field(min_length = 2, max_length = 100)
+
     # Padrao "atleta": se o cliente não informar, cria como atleta
     tipo_usuario: TipoUsuario = TipoUsuario.atleta
 
@@ -66,6 +70,7 @@ class Token(BaseModel):
 # ---------------------------------------------------------------------------
 class UsuarioSaida(BaseModel):
     id: int
+    nome: str | None    # Usamos  | None porque contas antigas ainda não têm
     email: EmailStr
     tipo_usuario: TipoUsuario
     plano: Plano
@@ -163,5 +168,73 @@ class EstatisticaSaida(BaseModel):
 
     model_config = ConfigDict(from_attributes = True)
 
+
+# ---------------------------------------------------------------------------
+# SAÍDA da vitrine — cartão público do atleta (busca sem login)
+# ---------------------------------------------------------------------------
+class AtletaBuscaSaida(BaseModel):
+    # id do Perfil de atleta  (NÃO é o da conta)
+    id: int
+    # o nome vem de Usuario (pode ser None em contas anigas -> vitrine mstra "Atleta")
+    nome: str | None
+    esporte: Esporte
+    posicao: str
+    categoria: str
+    cidade: str
+    estado: str
+    clube_atual:str | None
+    idade: int
+    # Idade calculada a partir de data_nascimento, ou seja, nunca será guardada e com isso ela nunca "envelhece" no banco
+    # a data cheia não é exposta seguindo padrões de privacidade
+
+'''
+Por que um schema novo em vez de reusar PerfilAtletaSaida? Porque o perfil (GET /perfil/{id}) é 
+"meu perfil completo"; a vitrine é um cartão resumido para olheiro ver de longe. 
+Expor tudo publicamente seria falta de privacidade — o Pydantic aqui é a portaria que decide o que o público vê.
+'''
+
+# ---------------------------------------------------------------------------
+# SAÍDA da busca — o "envelope" da paginação
+# ---------------------------------------------------------------------------
+class BuscaAtletasSaida(BaseModel):
+    # total = quantos atletas casaram os filtros (não o total do banco todo)
+    total: int                          
+    pagina: int             # qual página o cliente pediu
+    por_pagina: int         # quantos por página ele quer
+    total_paginas: int      # para o front desenhar "página 2 de 7"
+    resultados: list[AtletaBuscaSaida]  # lista de atletas dessa página
+
+
+# ---------------------------------------------------------------------------
+# ENTRADA — dados para completar a ficha do OLHEIRO (PUT /olheiro/completar)
+# ---------------------------------------------------------------------------
+class OlheiroCompleta(BaseModel):
+    # Tudo OPCIONAL de propóstivo: o olheiro pode preencher só o que quiser agora e o resto depois
+    # Os limites = menos String(...) do banco
+    organizacao: str | None = Field(default = None, max_length = 100)
+    cargo: str | None = Field(default = None, max_length= 50)
+
+
+# ---------------------------------------------------------------------------
+# SAÍDA — a ficha do olheiro (como o GET /perfil/{id} faz pro atleta)
+# ---------------------------------------------------------------------------
+class OlheiroSaida(BaseModel):
+    id: int
+    usuario_id: int
+    organizacao: str | None
+    cargo: str | None
+    verificado: bool       # selo de "verificado" para olheiros (atualmente False)
+    model_config = ConfigDict(from_attributes = True)   # deixa o Pydantic aceitar o objeto do banco direto (sem converter na mão)
+
+
+# ---------------------------------------------------------------------------
+# SAÍDA — um favorito gravado (POST / DELETE /atletas/{id}/favoritar)
+# ---------------------------------------------------------------------------
+class FavoritoSaida(BaseModel):
+    olheiro_id: int
+    atleta_id: int
+    criado_em: datetime
+    model_config = ConfigDict(from_attributes = True)
+    
 
 

@@ -53,6 +53,7 @@ def cadastro(dados: UsuarioCadastro, db: Session = Depends(get_db)):
 
     # 3) Monta a linha nova — A SENHA NUNCA VAI PURA: passa pelo hash_senha()
     novo_usuario = Usuario(
+        nome = dados.nome,
         email = dados.email,
         senha_hash = hash_senha(dados.senha),
         tipo_usuario = dados.tipo_usuario

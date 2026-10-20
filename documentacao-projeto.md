@@ -311,11 +311,19 @@ A lógica aqui é: **cada fase entrega algo que funciona e pode ser demonstrado*
      - 2.4B `GET /perfil/{id}/videos` — lista pública dos vídeos do atleta (mais novo primeiro) + `StaticFiles` montado em `/media` (arquivos de `backend/media` servidos com o Content-Type certo)
      - Bônus 2.4 — rota `/` redireciona para `/docs` (`RedirectResponse`, HTTP 307)
    - [x] 2.5 Estatísticas do atleta ✅ (14/10/2026) — `POST /estatisticas` com **upsert** (re-lançar a mesma métrica atualiza o valor) + `GET /perfil/{id}/estatisticas` público com filtros `?competicao=` / `?temporada=`
-   - [ ] 2.6 Commit da Fase 2 ← **próxima etapa**
+   - [x] 2.6 Commit da Fase 2 ✅ — `31c3395` (14/10/2026) "Fase 2: perfil do atleta, videos e estatisticas com upsert"
+
+✅ **Fase 2 encerrada.** Próxima: **Fase 3 — Busca e descoberta** (`GET /atletas` com filtros, paginação, favoritos).
+
+4. 🔄 Fase 3 — busca e descoberta (iniciada 14/10/2026):
+   - [x] 3.0 Campo `nome` ✅ (16/10/2026) — coluna em `usuario` + migrations `9ed6706244c1` (cria) e `ecf66b6ee6f0` (remove `atleta.nome` duplicado por engano); cadastro valida 201 com nome
+   - [x] 3.1 `GET /atletas` ✅ (16/10/2026) — vitrine pública (join Atleta×Usuario, idade calculada); bloqueio Smart App Control do Windows resolvido no meio (DLLs .pyd barradas)
+   - [x] 3.2 Filtros + paginação ✅ (16/10/2026) — `?esporte=&posicao=&estado=&categoria=` + `?pagina=&por_pagina=` com envelope `BuscaAtletasSaida`
+   - [x] 3.3 Favoritos ✅ (19/10/2026) — PUT /olheiro/completar (upsert) + POST/DELETE /atletas/{id}/favoritar + GET /meus-favoritos; 409 duplicado, 403 sem perfil olheiro
 
 **Endpoints que já respondem hoje:** `GET /health`, `GET /`, `POST /auth/cadastro`, `POST /auth/login`, `GET /auth/me`, `PUT /perfil/completar`, `GET /perfil/{id}`, `GET /perfil/{id}/videos`, `GET /perfil/{id}/estatisticas`, `POST /videos/upload`, `POST /estatisticas` — e mídia em `/media/uploads/{arquivo}`.
 
-**Testes validados na Fase 2 (até 13/10/2026):** cadastro→login→perfil do zero (TRUNCATE CASCADE); PUT idempotente (mesmo `id` em 2 chamadas); GET público 200/404/422; upload 201 com uuid no disco; `.txt` → 400; sem token → 401; `/media/...` → 200 `video/mp4` (inclusive com 304 de cache do navegador); `/perfil/1/videos` → 200 com 2 vídeos; `/perfil/999/videos` → 404.
+**Testes validados na Fase 2 (até 13/10/2026):** cadastro→login→perfil do zero (TRUNCATE CASCADE); PUT idempotente (mesmo `id` em 2 chamadas); GET público 200/404/422; upload 201 com uuid no disco; `.txt` → 400; sem token → 401; `/media/...` → 200 `video/mp4` (inclusive com 304 de cache do navegador); `/perfil/1/videos` → 200 com 2 vídeos; `/perfil/999/videos` → 404. **14/10 (estatísticas):** POST 201 com upsert (atualiza em vez de duplicar); `valor: 0` → 422; sem token → 401; lista pública 200 com filtros; `?temporada=1999` → `[]`; `/perfil/999/estatisticas` → 404.
 
 ---
 

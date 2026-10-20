@@ -83,7 +83,14 @@ class Usuario(Base):
 
     id: Mapped[int] = mapped_column(primary_key = True)
     # primary_key = a CHAVE única de cad alinha
-    
+
+    nome: Mapped[str | None] = mapped_column(String(100), index = True)
+    #   | None = OPCIONAL de propósito: quem já está cadastrado (o joao) não tem
+    #   nome ainda → a migration cria a coluna vazia (NULL) e nada quebra.
+    #   Nos NOVOS cadastros o nome vem obrigatório (schema do Pydantic exige).
+    #   Depois, num refinamento, tornaríamos obrigatório no banco também.
+    #   index = ordenar/filtrar por nome na vitrine fica rápido
+
     email: Mapped[str] = mapped_column(String(255), unique = True, index = True)
     # String(255) = texto até 255 caracteres
     # unique = NÃO pode repetir (1 email= 1 conta)

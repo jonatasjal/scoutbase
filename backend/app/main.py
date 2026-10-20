@@ -26,10 +26,14 @@ from app.routers.auth import router as auth_router
 from app.routers.perfil import router as perfil_router
 from app.routers.videos import router as videos_router
 from app.routers.estatisticas import router as estatisticas_router
+from app.routers import auth, perfil, videos, estatisticas, atletas, olheiro
+
 app.include_router(auth_router)
 app.include_router(perfil_router)
 app.include_router(videos_router)
 app.include_router(estatisticas_router)
+app.include_router(atletas.router)
+app.include_router(olheiro.router)
 
 # ==========================================================================
 # ROTAS

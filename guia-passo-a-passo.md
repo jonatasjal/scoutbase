@@ -1060,7 +1060,7 @@ cd C:\Users\jonat\Desktop\ScoutBase\backend
 
 ---
 
-## Checklist da Fase 2 — Perfil do atleta (em andamento 🔄)
+## Checklist da Fase 2 — Perfil do atleta ✅ CONCLUÍDA (14/10/2026)
 
 - [x] 2.1 Schemas `PerfilAtletaDados` / `PerfilAtletaSaida` (`schemas.py`) ✅ (08/10/2026)
 - [x] 2.2 `PUT /perfil/completar` — criar OU atualizar ficha, idempotente, identidade vinda do token ✅ (12/10/2026)
@@ -1072,11 +1072,27 @@ cd C:\Users\jonat\Desktop\ScoutBase\backend
 - [x] 2.5 Estatísticas do atleta ✅ (14/10/2026)
   - [x] Parte A — `POST /estatisticas` + schemas `EstatisticaDados`/`EstatisticaSaida`
   - [x] Regra escolhida: **upsert (A — atualizar)** — mesma métrica/competição/temporada = atualiza valor, não duplica
-  - [x] Parte B — `GET /perfil/{id}/estatisticas` públicocom filtros `?competicao=` e `?temporada=`
-- [ ] 2.6 Commit da Fase 2
+  - [x] Parte B — `GET /perfil/{id}/estatisticas` público com filtros `?competicao=` e `?temporada=`
+- [x] 2.6 Commit da Fase 2 ✅ — `31c3395` "Fase 2: perfil do atleta, videos e estatisticas com upsert" (8 arquivos, 522 linhas; `perfi.py` já não existia; `.docx` no `.gitignore` para ficar só na máquina)
 
 **Testado (14/10/2026):** POST 201 com upsert (id 3 atualizado, não duplicou); lista pública 200; filtro temporada 2026 → 3 linhas; `?temporada=1999` → `[]`; `/perfil/999/estatisticas` → 404; `valor: 0` → 422; sem token → 401. ⚠️ Lição: upsert compara texto byte a byte — "Ribeirão" ≠ "Ribeirao" nasceu linha duplicada (limpa; em produção: normalizar texto na entrada).
 
 **Testado (13/10/2026):** upload `.mp4` → 201 com uuid no disco (`media/uploads/`) e linha em `video_atleta`; `.txt` → 400; sem token → 401; arquivo servido em `/media/uploads/...` → 200 `video/mp4`; lista `/perfil/1/videos` → 200 com 2 vídeos; `/perfil/999/videos` → 404.
 
 **Testado no Swagger (12/10/2026):** banco zerado com `TRUNCATE ... CASCADE` → cadastro 201 → login 200 → `PUT /perfil/completar` 200 (mesmo `id` na 1ª e 2ª chamada = atualizou, não duplicou) → `GET /perfil/1` 200 sem token → `/perfil/999` 404 → `/perfil/abc` 422.
+
+---
+
+## Checklist da Fase 3 — Busca e descoberta (em andamento 🔄)
+
+- [x] 3.0 Campo `nome` ✅ (concluída 16/10/2026)
+  - [x] `nome` no model `Usuario` (`models.py`) — `Mapped[str | None]`, index
+  - [x] `nome` em `UsuarioCadastro` (obrigatório, 2–100) e `UsuarioSaida` (`str | None`) no `schemas.py`
+  - [x] `auth.py`: `nome = dados.nome` no `Usuario(...)`
+  - [x] Migration 1ª: `9ed6706244c1` "fase3_nome_usuario" aplicada (`upgrade head`)
+  - [x] Erro 409 (e-mail repetido) e TypeError 'nome' invalid keyword — resolvidos (didática)
+  - [x] Cadastro testado → **201** com `"nome"` na resposta
+  - [x] ⚠️ 2ª migration executada (16/10): `ecf66b6ee6f0` removeu `atleta.nome` + `ix_atleta_nome` (autogenerate: `Detected removed column 'atleta.nome'`)
+- [x] 3.1 `GET /atletas` ✅ (16/10/2026) — vitrine pública sem token; schema `AtletaBuscaSaida` + router `routers/atletas.py` com JOIN Atleta×Usuario e `calcular_idade()`; corrigido typo `list['AtletaBuscaSaida']` → `list[AtletaBuscaSaida]` (aspas quebravam o /openapi.json)
+- [x] 3.2 Filtros + paginação ✅ (16/10/2026) — `?esporte=&posicao=&estado=&categoria=` (opcionais, ilike/normalização) + `?pagina=&por_pagina=` com envelope `BuscaAtletasSaida` (total, total_paginas, resultados); corrigidos: typo `BuscaAtletaSaida`→`BuscaAtletasSaida` e função duplicada (FastAPI fica com a 1ª rota)
+- [x] 3.3 Favoritar/desfavoritar (olheiro) ✅ (19/10/2026) — `PUT /olheiro/completar` (upsert) + `POST`/`DELETE /atletas/{id}/favoritar` (409 duplicado, 403 sem perfil) + `GET /meus-favoritos` (JOIN 3 tabelas, reusa AtletaBuscaSaida); roteador `routers/olheiro.py` + helper `obter_olheiro_logado`; testado fim a fim (201/409/200/[]/403)
