@@ -14,7 +14,9 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.deps import get_current_user
-from app.models import Mensagem, Usuario
+from app.models import Mensagem, Usuario, Atleta, ResponsavelLegal, TipoUsuario
+from app.routers.atletas import calcular_idade   # mesma função da vitrine (reuso!), Atleta, ResponsavelLegal, TipoUsuario
+from app.routers.atletas import calcular_idade   # mesma função da vitrine (reuso!)
 from app.schemas import MensagemEnvia, MensagemSaida, LidasSaida
 
 router = APIRouter(prefix = '/mensagens', tags = ['mensagens'])
@@ -38,11 +40,45 @@ def enviar_mensagem(
     if not conteudo:
         raise HTTPException(status_code=422, detail= 'Mensagem não pode ser vazia')
 
-    # 3) Cria e salva
+    # 3) LGPD (Fase 4.3) — regra: OLHEIRO só conversa com MENOR se houver
+    #    responsável legal VINCULADO e ativo. Sem vínculo → 403 (bloqueado).
+    #    Com vínculo → gravamos o id do responsável na mensagem: é o "recibo"
+    #    de consentimento (campo consentimento_responsavel_id).
+    consentimento_id = None   # padrão: sem consentimento (adulto ou não-atleta)
+    if usuario.tipo_usuario == TipoUsuario.olheiro:
+        # O destinatário É um atleta? A mensagem vai pra um usuario_id,
+        # e o perfil "atleta" é OUTRA tabela → procuramos a linha dele lá
+        atleta_destino = (
+            db.query(Atleta)
+            .filter(Atleta.usuario_id == dados.destinatario_id)
+            .first()
+        )
+        if atleta_destino is not None:
+            idade = calcular_idade(atleta_destino.data_nascimento)
+            if idade < 18:
+                # Menor! Procura responsável legal com vínculo ATIVO
+                responsavel = (
+                    db.query(ResponsavelLegal)
+                    .filter(
+                        ResponsavelLegal.atleta_id == atleta_destino.id,
+                        ResponsavelLegal.vinculo_ativo == True,
+                    )
+                    .first()
+                )
+                if responsavel is None:
+                    # Sem responsável → LGPD barra o envio
+                    raise HTTPException(
+                        status_code = 403,
+                        detail = 'Atleta menor de idade sem responsável legal: envio bloqueado (LGPD)',
+                    )
+                consentimento_id = responsavel.id  # recibo na mensagem
+
+    # 4) Cria e salva
     mensagem = Mensagem(
         remetente_id = usuario.id,
         destinatario_id = dados.destinatario_id,
         conteudo = conteudo,
+        consentimento_responsavel_id = consentimento_id,   # ← NOVA
     )
     db.add(mensagem)
     db.commit()
@@ -55,6 +91,7 @@ def enviar_mensagem(
         remetente_nome = usuario.nome,  # quem enviou = o logado (nunca erra)
         conteudo = mensagem.conteudo,
         lida = mensagem.lida,
+        consentimento_responsavel_id = mensagem.consentimento_responsavel_id,  # ← NOVA
         criado_em = mensagem.criado_em,
     )
     

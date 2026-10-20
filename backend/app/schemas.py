@@ -258,6 +258,10 @@ class MensagemSaida(BaseModel):
     remetente_nome: str | None   # nome de quem enviou (pode ser NULL no banco → aceitamos None)
     conteudo: str
     lida: bool
+    consentimento_responsavel_id: int | None
+    #   Fase 4.3 (LGPD): se o remetente é olheiro e o destinatário é MENOR,
+    #   guardamos aqui o id do responsável que autorizou (o "recibo").
+    #   None = normal (adulto, não-atleta, ou atleta mandando).
     criado_em: datetime
     model_config = ConfigDict(from_attributes=True)
 
