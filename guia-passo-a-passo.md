@@ -1083,7 +1083,7 @@ cd C:\Users\jonat\Desktop\ScoutBase\backend
 
 ---
 
-## Checklist da Fase 3 — Busca e descoberta (em andamento 🔄)
+## Checklist da Fase 3 — Busca e descoberta (FECHADA ✅ em 19/10/2026)
 
 - [x] 3.0 Campo `nome` ✅ (concluída 16/10/2026)
   - [x] `nome` no model `Usuario` (`models.py`) — `Mapped[str | None]`, index
@@ -1096,3 +1096,29 @@ cd C:\Users\jonat\Desktop\ScoutBase\backend
 - [x] 3.1 `GET /atletas` ✅ (16/10/2026) — vitrine pública sem token; schema `AtletaBuscaSaida` + router `routers/atletas.py` com JOIN Atleta×Usuario e `calcular_idade()`; corrigido typo `list['AtletaBuscaSaida']` → `list[AtletaBuscaSaida]` (aspas quebravam o /openapi.json)
 - [x] 3.2 Filtros + paginação ✅ (16/10/2026) — `?esporte=&posicao=&estado=&categoria=` (opcionais, ilike/normalização) + `?pagina=&por_pagina=` com envelope `BuscaAtletasSaida` (total, total_paginas, resultados); corrigidos: typo `BuscaAtletaSaida`→`BuscaAtletasSaida` e função duplicada (FastAPI fica com a 1ª rota)
 - [x] 3.3 Favoritar/desfavoritar (olheiro) ✅ (19/10/2026) — `PUT /olheiro/completar` (upsert) + `POST`/`DELETE /atletas/{id}/favoritar` (409 duplicado, 403 sem perfil) + `GET /meus-favoritos` (JOIN 3 tabelas, reusa AtletaBuscaSaida); roteador `routers/olheiro.py` + helper `obter_olheiro_logado`; testado fim a fim (201/409/200/[]/403)
+
+✅ **Fase 3 encerrada** (commits `ae3e7db`).
+
+---
+
+## Checklist da Fase 4 — Mensagem/chat (FECHADA ✅ em 20/10/2026)
+
+- [x] 4.1 Enviar + conversa ✅ (20/10/2026)
+  - [x] Schemas `MensagemEnvia` / `MensagemSaida` (com `remetente_nome` via dicionário — 1 query, não N)
+  - [x] Roteador `routers/mensagens.py` — `POST /mensagens` (404 destinatário inexistente, 422 mensagem vazia)
+  - [x] `GET /mensagens/conversa/{outro_id}` — cronológico, só as que eu participei (olheiro vê só a própria conversa)
+  - [x] Registro em `main.py`; fix typos do aluno (destrinatario, statu_code, contudo...) + `list[X]` vs `[X]`
+  - [x] Testado 5/5: envio 201, conversa 200 com as 2 mensagens, olheiro estranho vê `[]`, destinatário 999 → 404
+- [x] 4.2 Lido / não-lido ✅ (20/10/2026)
+  - [x] `PUT /mensagens/lidas/{outro_id}` — `.update()` em massa (1 SQL), só as RECEBIDAS e não-lidas; schema `LidasSaida`
+  - [x] `GET /mensagens/nao-lidas` — `.count()` (banco devolve só o número)
+  - [x] Testado: 1 não-lida → PUT → 0; destinatário decide (remetente nunca marca)
+  - [x] "Altere nos scripts pra mim" → assistente aplicou blocos em schemas.py + mensagens.py
+- [x] 4.3 LGPD ✅ (20/10/2026)
+  - [x] Regra: olheiro → atleta MENOR exige responsável legal com vínculo ativo; sem → **403**
+  - [x] Com vínculo: `consentimento_responsavel_id` gravado na mensagem (o "recibo"); schema expõe o campo
+  - [x] Reuso de `calcular_idade` (importado do router de atletas)
+  - [x] Testado 4/4: 403 sem vínculo; criação do vínculo (responsável Maria id 6 + vínculo atleta 1); 201 com recibo; atleta menor → olheiro liberado (só trava olheiro→menor)
+- [x] Commits da Fase 4 — `bd2cc01` (4.1+4.2) e `22514b3` (4.3 LGPD)
+
+✅ **Fase 4 encerrada** (20/10/2026). Banco dev: mensagens id 5 (Messi→joão, com recibo) e 6 (joão→Messi); responsável Maria (id 6) vinculada ao atleta 1.

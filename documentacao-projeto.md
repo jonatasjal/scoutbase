@@ -315,13 +315,20 @@ A lógica aqui é: **cada fase entrega algo que funciona e pode ser demonstrado*
 
 ✅ **Fase 2 encerrada.** Próxima: **Fase 3 — Busca e descoberta** (`GET /atletas` com filtros, paginação, favoritos).
 
-4. 🔄 Fase 3 — busca e descoberta (iniciada 14/10/2026):
+4. ✅ Fase 3 — busca e descoberta (FECHADA 19/10/2026):
    - [x] 3.0 Campo `nome` ✅ (16/10/2026) — coluna em `usuario` + migrations `9ed6706244c1` (cria) e `ecf66b6ee6f0` (remove `atleta.nome` duplicado por engano); cadastro valida 201 com nome
    - [x] 3.1 `GET /atletas` ✅ (16/10/2026) — vitrine pública (join Atleta×Usuario, idade calculada); bloqueio Smart App Control do Windows resolvido no meio (DLLs .pyd barradas)
    - [x] 3.2 Filtros + paginação ✅ (16/10/2026) — `?esporte=&posicao=&estado=&categoria=` + `?pagina=&por_pagina=` com envelope `BuscaAtletasSaida`
    - [x] 3.3 Favoritos ✅ (19/10/2026) — PUT /olheiro/completar (upsert) + POST/DELETE /atletas/{id}/favoritar + GET /meus-favoritos; 409 duplicado, 403 sem perfil olheiro
+   - Commit: `ae3e7db`
 
-**Endpoints que já respondem hoje:** `GET /health`, `GET /`, `POST /auth/cadastro`, `POST /auth/login`, `GET /auth/me`, `PUT /perfil/completar`, `GET /perfil/{id}`, `GET /perfil/{id}/videos`, `GET /perfil/{id}/estatisticas`, `POST /videos/upload`, `POST /estatisticas` — e mídia em `/media/uploads/{arquivo}`.
+5. ✅ Fase 4 — Mensagem/chat (FECHADA 20/10/2026):
+   - [x] 4.1 Enviar + conversa ✅ (20/10/2026) — `POST /mensagens` + `GET /mensagens/conversa/{outro_id}` (cronológico, só as que participei); roteador `routers/mensagens.py`; `remetente_nome` via dicionário (1 query)
+   - [x] 4.2 Lido/não-lido ✅ (20/10/2026) — `PUT /mensagens/lidas/{outro_id}` (update em massa) + `GET /mensagens/nao-lidas` (count); só o destinatário marca como lido
+   - [x] 4.3 LGPD ✅ (20/10/2026) — olheiro → atleta menor exige responsável legal com vínculo ativo (senão 403); com vínculo grava `consentimento_responsavel_id` (recibo de auditoria)
+   - Commits: `bd2cc01` (4.1+4.2) e `22514b3` (4.3)
+
+**Endpoints que já respondem hoje:** `GET /health`, `GET /`, `POST /auth/cadastro`, `POST /auth/login`, `GET /auth/me`, `PUT /perfil/completar`, `GET /perfil/{id}`, `GET /perfil/{id}/videos`, `GET /perfil/{id}/estatisticas`, `POST /videos/upload`, `POST /estatisticas`, `GET /atletas`, `PUT /olheiro/completar`, `POST`/`DELETE /atletas/{id}/favoritar`, `GET /meus-favoritos`, `POST /mensagens`, `GET /mensagens/conversa/{id}`, `PUT /mensagens/lidas/{id}`, `GET /mensagens/nao-lidas` — e mídia em `/media/uploads/{arquivo}`.
 
 **Testes validados na Fase 2 (até 13/10/2026):** cadastro→login→perfil do zero (TRUNCATE CASCADE); PUT idempotente (mesmo `id` em 2 chamadas); GET público 200/404/422; upload 201 com uuid no disco; `.txt` → 400; sem token → 401; `/media/...` → 200 `video/mp4` (inclusive com 304 de cache do navegador); `/perfil/1/videos` → 200 com 2 vídeos; `/perfil/999/videos` → 404. **14/10 (estatísticas):** POST 201 com upsert (atualiza em vez de duplicar); `valor: 0` → 422; sem token → 401; lista pública 200 com filtros; `?temporada=1999` → `[]`; `/perfil/999/estatisticas` → 404.
 
