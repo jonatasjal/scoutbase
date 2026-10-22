@@ -1138,3 +1138,19 @@ cd C:\Users\jonat\Desktop\ScoutBase\backend
 - [x] Commit `2ee4551` — "Fase 5: API de responsavel legal (criar vinculo, meus-vinculos, soft delete)"
 
 ✅ **Fase 5 encerrada** (21/10/2026). Banco dev: vínculo id 1 (desativado, auditoria) + id 2 (ativo, mãe Maria × atleta 1); mensagem id 7 (Messi→joão com recibo 2).
+
+---
+
+## Checklist da Fase 6 — Avaliação bidirecional (FECHADA ✅ em 22/10/2026)
+
+- [x] Modelo `Avaliacao` polimórfico: `avaliado_tipo` ('atleta'|'olheiro') + `avaliado_id` (substitui `atleta_id`; UniqueConstraint no par avaliador×avaliado) ✅
+  - [x] Fix do aluno: Bloco 1 do models não colado + 4 typos nos schemas (`avaliacao_id`, `comentarios`, campo `avaliacao` duplicado, `avaliacao_tipo`)
+- [x] Migration `7a282b4eb5c0` — drop `atleta_id`, add `avaliado_tipo`/`avaliado_id`, unique + índices ✅
+- [x] Schemas `AvaliacaoDados` (nota 0–10) / `AvaliacaoSaida` / `AvaliacaoResumo` ✅
+- [x] Roteador `routers/avaliacoes.py` — `POST /avaliacoes` (direção pelo tipo de quem loga; upsert 1 por par) + `GET /{tipo}/{id}` (média+comentários) + `GET /minhas` ✅
+  - [x] Olheiro sem ficha pode DAR nota (404 só se avaliado inexistente); atleta só avalia olheiros (direção automática)
+- [x] Registro em `main.py`
+- [x] Testado 8/8 + bônus (22/10/2026): ozzy sem ficha→200; olheiro 99→404; upsert mudou 9→7 na mesma id; resumo atleta média 8.8; resumo olheiro 7.0; `/minhas` ok
+- [x] Commit `f6f2192` — "Fase 6: avaliacao bidirecional olheiro x atleta com upsert e resumo"
+
+✅ **Fase 6 encerrada** (22/10/2026). Banco dev: avaliações id 1 (ozzy→atleta1, 9.0), 2 (joão→olheiro1, 7.0 upsertada), 3 (messi→atleta1, 8.5).
