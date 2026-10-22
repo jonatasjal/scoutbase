@@ -275,4 +275,21 @@ class LidasSaida(BaseModel):
     mensagens_marcadas: int   # quantas mensagens passaram de false → true
     
 
+# ---------------------------------------------------------------------------
+# FASE 5 — RESPONSÁVEL LEGAL (API do vínculo LGPD)
+# ---------------------------------------------------------------------------
+# Entrada -> criar vínculo responsável x atleta
+class ResponsavelDados(BaseModel):
+    atleta_id: int = Field(gt=0)
+    # gt = greater than (maior que) - id 0 ou negativo não existe
+    parentesco: str = Field(min_length = 2, max_length = 30)
+    # 'mãe', 'pai', 'tutor' ...mesmo limite do banco (String(30))
 
+# Saída - resumo do vínculo
+class ResponsavelSaida(BaseModel):
+    id: int
+    atleta_id: int
+    parentesco: str
+    vinculo_ativo: bool
+    criado_em: datetime
+    model_config = ConfigDict(from_attributes = True)
