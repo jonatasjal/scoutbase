@@ -1122,3 +1122,19 @@ cd C:\Users\jonat\Desktop\ScoutBase\backend
 - [x] Commits da Fase 4 — `bd2cc01` (4.1+4.2) e `22514b3` (4.3 LGPD)
 
 ✅ **Fase 4 encerrada** (20/10/2026). Banco dev: mensagens id 5 (Messi→joão, com recibo) e 6 (joão→Messi); responsável Maria (id 6) vinculada ao atleta 1.
+
+---
+
+## Checklist da Fase 5 — Responsável Legal API (FECHADA ✅ em 21/10/2026)
+
+- [x] Schemas `ResponsavelDados` (entrada: atleta_id + parentesco) / `ResponsavelSaida` ✅
+  - [x] Fix: `ResponsavelSaida` aninhada dentro de `ResponsavelDados` (indentação) + typo `from_atributes` → `from_attributes`
+- [x] Roteador `routers/responsaveis.py` — `POST /responsaveis` (404 atleta inexistente, 409 duplicado) + `GET /meus-vinculos` + `DELETE /responsaveis/{id}` ✅
+  - [x] Guarda `obter_responsavel_logado` (403 se não for tipo responsavel)
+  - [x] Soft delete: `vinculo_ativo = false` (histórico fica pra auditoria); só o dono do vínculo desvincula (403)
+  - [x] Fix do aluno: bloco colado 2x, corpo da função sem indentação, `.first()` → `first()`
+- [x] Registro em `main.py`
+- [x] Testado 7/7 (21/10/2026): atleta→403; duplicado→409; meus-vinculos→200; delete→soft; Messi sem vínculo→403 LGPD; re-vincular→201; Messi com vínculo→201 + consentimento
+- [x] Commit `2ee4551` — "Fase 5: API de responsavel legal (criar vinculo, meus-vinculos, soft delete)"
+
+✅ **Fase 5 encerrada** (21/10/2026). Banco dev: vínculo id 1 (desativado, auditoria) + id 2 (ativo, mãe Maria × atleta 1); mensagem id 7 (Messi→joão com recibo 2).

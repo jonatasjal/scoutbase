@@ -328,7 +328,14 @@ A lógica aqui é: **cada fase entrega algo que funciona e pode ser demonstrado*
    - [x] 4.3 LGPD ✅ (20/10/2026) — olheiro → atleta menor exige responsável legal com vínculo ativo (senão 403); com vínculo grava `consentimento_responsavel_id` (recibo de auditoria)
    - Commits: `bd2cc01` (4.1+4.2) e `22514b3` (4.3)
 
-**Endpoints que já respondem hoje:** `GET /health`, `GET /`, `POST /auth/cadastro`, `POST /auth/login`, `GET /auth/me`, `PUT /perfil/completar`, `GET /perfil/{id}`, `GET /perfil/{id}/videos`, `GET /perfil/{id}/estatisticas`, `POST /videos/upload`, `POST /estatisticas`, `GET /atletas`, `PUT /olheiro/completar`, `POST`/`DELETE /atletas/{id}/favoritar`, `GET /meus-favoritos`, `POST /mensagens`, `GET /mensagens/conversa/{id}`, `PUT /mensagens/lidas/{id}`, `GET /mensagens/nao-lidas` — e mídia em `/media/uploads/{arquivo}`.
+6. ✅ Fase 5 — Responsável Legal API (FECHADA 21/10/2026):
+   - [x] `POST /responsaveis` — criar vínculo responsável × atleta (só tipo responsavel; 404 atleta inexistente; 409 duplicado)
+   - [x] `GET /responsaveis/meus-vinculos` — lista os vínculos ativos do logado
+   - [x] `DELETE /responsaveis/{id}` — soft delete (`vinculo_ativo = false`, histórico preservado p/ auditoria; só o dono)
+   - [x] Fechou a brecha da LGPD: vínculo agora é criado por API (antes era SQL direto)
+   - Commit: `2ee4551`
+
+**Endpoints que já respondem hoje:** `GET /health`, `GET /`, `POST /auth/cadastro`, `POST /auth/login`, `GET /auth/me`, `PUT /perfil/completar`, `GET /perfil/{id}`, `GET /perfil/{id}/videos`, `GET /perfil/{id}/estatisticas`, `POST /videos/upload`, `POST /estatisticas`, `GET /atletas`, `PUT /olheiro/completar`, `POST`/`DELETE /atletas/{id}/favoritar`, `GET /meus-favoritos`, `POST /mensagens`, `GET /mensagens/conversa/{id}`, `PUT /mensagens/lidas/{id}`, `GET /mensagens/nao-lidas`, `POST /responsaveis`, `GET /responsaveis/meus-vinculos`, `DELETE /responsaveis/{id}` — e mídia em `/media/uploads/{arquivo}`.
 
 **Testes validados na Fase 2 (até 13/10/2026):** cadastro→login→perfil do zero (TRUNCATE CASCADE); PUT idempotente (mesmo `id` em 2 chamadas); GET público 200/404/422; upload 201 com uuid no disco; `.txt` → 400; sem token → 401; `/media/...` → 200 `video/mp4` (inclusive com 304 de cache do navegador); `/perfil/1/videos` → 200 com 2 vídeos; `/perfil/999/videos` → 404. **14/10 (estatísticas):** POST 201 com upsert (atualiza em vez de duplicar); `valor: 0` → 422; sem token → 401; lista pública 200 com filtros; `?temporada=1999` → `[]`; `/perfil/999/estatisticas` → 404.
 
