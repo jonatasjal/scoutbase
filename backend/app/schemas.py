@@ -293,3 +293,32 @@ class ResponsavelSaida(BaseModel):
     vinculo_ativo: bool
     criado_em: datetime
     model_config = ConfigDict(from_attributes = True)
+
+
+# ---------------------------------------------------------------------------
+# FASE 6 — AVALIAÇÃO (olheiro × atleta, bidirecional)
+# ---------------------------------------------------------------------------
+class AvaliacaoDados(BaseModel):
+    avaliado_id: int = Field(gt=0)
+    nota: float = Field(ge=0, le=10)        # de 0 a 10, o resto o pydantic barra
+    comentario: str | None = Field(default = None, max_length = 500)
+
+
+class AvaliacaoSaida(BaseModel):
+    id: int
+    avaliador_id: int
+    avaliado_tipo: str
+    avaliado_id: int
+    nota: float
+    comentario: str | None
+    criado_em: datetime
+    model_config = ConfigDict(from_attributes = True)
+
+
+class AvaliacaoResumo(BaseModel):
+    avaliado_tipo: str
+    avaliado_id: int
+    total_avaliacoes: int
+    media_nota: float | None        # None = ninguém avaliou ainda
+    comentarios: list[str]          # os textos, mais recentes primeiro
+

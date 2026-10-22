@@ -303,22 +303,30 @@ class Mensagem(Base):
 
 
 # ---------------------------------------------------------------------------
-# 9. Avaliacao — recomendação de um avaliador sobre um atleta (Fase 2)
+# 9. Avaliacao — nota 0-10 bidirecional (olheiro × atleta) — Fase 6
 # ---------------------------------------------------------------------------
-# Está no modelo DESDE JÁ de propósito: criar tabela depois é migrate novo;
-# já existir vazia custa zero.
+# Polimórfica: avaliado_tipo + avaliado_id. O id só significa algo JUNTO
+# com o tipo ('atleta' → tabela atleta.id; 'olheiro' → tabela olheiro.id).
+# Sem FK de propósito: uma FK só apontaria pra uma tabela.
 
 class Avaliacao(Base):
     __tablename__ = "avaliacao"
+    __table_args__ = (
+        # 1 nota por par (avaliador × avaliado) — reavaliar atualiza, não duplica
+        UniqueConstraint("avaliador_id", "avaliado_tipo", "avaliado_id",
+                         name="uq_avaliador_avaliado"),
+    )
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    atleta_id: Mapped[int] = mapped_column(ForeignKey("atleta.id"), index=True)
-    avaliador_id: Mapped[int] = mapped_column(ForeignKey("usuario.id"))
-    #   Quem avaliou: um usuário (ex: técnico) — ainda sem entidade "tecnico"
+    avaliador_id: Mapped[int] = mapped_column(ForeignKey("usuario.id"), index=True)
+    #   Quem deu a nota (um usuario: atleta ou olheiro)
 
-    nota: Mapped[Decimal] = mapped_column(Numeric(3, 1))
-    #   Numeric(3,1) = ex: 8.5 (até 99.9) — nota com 1 casa decimal
+    avaliado_tipo: Mapped[str] = mapped_column(String(10))   # 'atleta' | 'olheiro'
+    avaliado_id: Mapped[int] = mapped_column(index=True)
+    #   POLIMÓRFICO: sem FK o banco não barra id inválido,
+    #   mas o endpoint barra com 404 (é a app que valida).
 
+    nota: Mapped[Decimal] = mapped_column(Numeric(3, 1))     # ex: 8.5
     comentario: Mapped[str | None] = mapped_column(Text)
     criado_em: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
 
