@@ -342,7 +342,13 @@ A lógica aqui é: **cada fase entrega algo que funciona e pode ser demonstrado*
    - [x] Tabela polimórfica via migration `7a282b4eb5c0` (`avaliado_tipo` + `avaliado_id`)
    - Commit: `f6f2192`
 
-**Endpoints que já respondem hoje:** `GET /health`, `GET /`, `POST /auth/cadastro`, `POST /auth/login`, `GET /auth/me`, `PUT /perfil/completar`, `GET /perfil/{id}`, `GET /perfil/{id}/videos`, `GET /perfil/{id}/estatisticas`, `POST /videos/upload`, `POST /estatisticas`, `GET /atletas`, `PUT /olheiro/completar`, `POST`/`DELETE /atletas/{id}/favoritar`, `GET /meus-favoritos`, `POST /mensagens`, `GET /mensagens/conversa/{id}`, `PUT /mensagens/lidas/{id}`, `GET /mensagens/nao-lidas`, `POST /responsaveis`, `GET /responsaveis/meus-vinculos`, `DELETE /responsaveis/{id}`, `POST /avaliacoes`, `GET /avaliacoes/{tipo}/{id}`, `GET /avaliacoes/minhas` — e mídia em `/media/uploads/{arquivo}`.
+8. ✅ Fase 7 — Dashboard de rankings (FECHADA 22/10/2026):
+   - [x] `GET /dashboard/top-atletas` — ranking por média de avaliação (GROUP BY + AVG + HAVING + ORDER BY DESC + LIMIT); `?limite` (1–50, default 10)
+   - [x] `GET /dashboard/ranking-olheiros` — reputação dos olheiros (mesma engenharia)
+   - [x] `GET /dashboard/resumo` — totais: usuários, atletas, olheiros, avaliações, média geral, vídeos, mensagens
+   - Commit: `3f8ae44`
+
+**Endpoints que já respondem hoje:** `GET /health`, `GET /`, `POST /auth/cadastro`, `POST /auth/login`, `GET /auth/me`, `PUT /perfil/completar`, `GET /perfil/{id}`, `GET /perfil/{id}/videos`, `GET /perfil/{id}/estatisticas`, `POST /videos/upload`, `POST /estatisticas`, `GET /atletas`, `PUT /olheiro/completar`, `POST`/`DELETE /atletas/{id}/favoritar`, `GET /meus-favoritos`, `POST /mensagens`, `GET /mensagens/conversa/{id}`, `PUT /mensagens/lidas/{id}`, `GET /mensagens/nao-lidas`, `POST /responsaveis`, `GET /responsaveis/meus-vinculos`, `DELETE /responsaveis/{id}`, `POST /avaliacoes`, `GET /avaliacoes/{tipo}/{id}`, `GET /avaliacoes/minhas`, `GET /dashboard/top-atletas`, `GET /dashboard/ranking-olheiros`, `GET /dashboard/resumo` — e mídia em `/media/uploads/{arquivo}`.
 
 **Testes validados na Fase 2 (até 13/10/2026):** cadastro→login→perfil do zero (TRUNCATE CASCADE); PUT idempotente (mesmo `id` em 2 chamadas); GET público 200/404/422; upload 201 com uuid no disco; `.txt` → 400; sem token → 401; `/media/...` → 200 `video/mp4` (inclusive com 304 de cache do navegador); `/perfil/1/videos` → 200 com 2 vídeos; `/perfil/999/videos` → 404. **14/10 (estatísticas):** POST 201 com upsert (atualiza em vez de duplicar); `valor: 0` → 422; sem token → 401; lista pública 200 com filtros; `?temporada=1999` → `[]`; `/perfil/999/estatisticas` → 404.
 

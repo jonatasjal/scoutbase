@@ -1154,3 +1154,17 @@ cd C:\Users\jonat\Desktop\ScoutBase\backend
 - [x] Commit `f6f2192` — "Fase 6: avaliacao bidirecional olheiro x atleta com upsert e resumo"
 
 ✅ **Fase 6 encerrada** (22/10/2026). Banco dev: avaliações id 1 (ozzy→atleta1, 9.0), 2 (joão→olheiro1, 7.0 upsertada), 3 (messi→atleta1, 8.5).
+
+---
+
+## Checklist da Fase 7 — Dashboard de rankings (FECHADA ✅ em 22/10/2026)
+
+- [x] Schemas `TopAtletaSaida` / `TopOlheiroSaida` / `ResumoDashboardSaida` ✅
+- [x] Roteador `routers/dashboard.py` — `GET /dashboard/top-atletas`, `GET /dashboard/ranking-olheiros` (GROUP BY + AVG + HAVING + ORDER BY + LIMIT; posição de ranking feita no Python) + `GET /dashboard/resumo` ✅
+- [x] `?limite` com `Query(10, ge=1, le=50)` → 422 automático fora da faixa ✅
+- [x] Registro em `main.py` ✅
+- [x] Testado 5/5 (22/10/2026): resumo = 6 usuários/3 avaliações/média 8.17; top-atletas = atleta 1 (zagueiro) 1º 8.75 c/ 2 avaliações; ranking-olheiros = Messi 7.0; limite=999 → 422; limite=1 → só o 1º
+- [x] Fixes: 4 typos do aluno (`Video`→`VideoAtleta`, `avaliacao_tipo`→`avaliado_tipo`, `total_avaliacao(s)`, `ranking_posico(ão)`) + **bug de cross join do assistente** no resumo (6×2×5 = "60 usuários") → corrigido com contagem por tabela sem JOIN
+- [x] Commit `3f8ae44` — "Fase 7: dashboard de rankings (top atletas, ranking olheiros, resumo)"
+
+✅ **Fase 7 encerrada** (22/10/2026). Lição da fase: produto cartesiano (tabela no SELECT sem JOIN) e HAVING ≠ WHERE.
