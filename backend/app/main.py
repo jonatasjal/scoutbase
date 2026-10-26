@@ -26,7 +26,7 @@ from app.routers.auth import router as auth_router
 from app.routers.perfil import router as perfil_router
 from app.routers.videos import router as videos_router
 from app.routers.estatisticas import router as estatisticas_router
-from app.routers import auth, perfil, videos, estatisticas, atletas, olheiro, mensagens, responsaveis, avaliacoes
+from app.routers import atletas, auth, avaliacoes, dashboard, estatisticas, mensagens, olheiro, perfil, responsaveis, videos
 
 app.include_router(auth_router)
 app.include_router(perfil_router)
@@ -37,6 +37,7 @@ app.include_router(olheiro.router)
 app.include_router(mensagens.router)
 app.include_router(responsaveis.router)
 app.include_router(avaliacoes.router)
+app.include_router(dashboard.router)
 
 # ==========================================================================
 # ROTAS

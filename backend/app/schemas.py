@@ -294,7 +294,6 @@ class ResponsavelSaida(BaseModel):
     criado_em: datetime
     model_config = ConfigDict(from_attributes = True)
 
-
 # ---------------------------------------------------------------------------
 # FASE 6 — AVALIAÇÃO (olheiro × atleta, bidirecional)
 # ---------------------------------------------------------------------------
@@ -302,7 +301,6 @@ class AvaliacaoDados(BaseModel):
     avaliado_id: int = Field(gt=0)
     nota: float = Field(ge=0, le=10)        # de 0 a 10, o resto o pydantic barra
     comentario: str | None = Field(default = None, max_length = 500)
-
 
 class AvaliacaoSaida(BaseModel):
     id: int
@@ -314,7 +312,6 @@ class AvaliacaoSaida(BaseModel):
     criado_em: datetime
     model_config = ConfigDict(from_attributes = True)
 
-
 class AvaliacaoResumo(BaseModel):
     avaliado_tipo: str
     avaliado_id: int
@@ -322,3 +319,39 @@ class AvaliacaoResumo(BaseModel):
     media_nota: float | None        # None = ninguém avaliou ainda
     comentarios: list[str]          # os textos, mais recentes primeiro
 
+# ========================================================
+# FASE 7 — DASHBOARD (rankings e números da plataforma)
+# ========================================================
+class TopAtletaSaida(BaseModel):
+    # Uma linha do ranking de atletas
+    atleta_id: int
+    nome: str | None
+    posicao: str | None = None
+    media_nota: float           # AVG(nota)
+    total_avaliacoes: int       # COUNT(*)
+    ranking_posicao: int        # 1º, 2º, 3º... (a ordem é a posição na lista)
+
+class TopOlheiroSaida(BaseModel):
+    # Uma linha do ranking de olheiros (reputação de quem olha)
+    olheiro_id: int
+    nome: str | None
+    organizacao: str | None = None
+    media_nota: float
+    total_avaliacoes: int
+    ranking_posicao: int
+
+class ResumoDashboardSaida(BaseModel):
+    # Os nºs gerais do topo do painel
+    total_usuarios: int
+    total_atletas: int
+    total_olheiros: int
+    total_avaliacoes: int
+    media_geral_nota: float     # média de TODAS as notas sem agrupar
+    total_videos: int
+    total_mensagens: int
+
+'''
+- ranking_posicao — o Python (não o SQL) escreve o número do lugar: a 1ª linha da lista = posição 1
+- media_nota: float — o banco guarda nota como Decimal (exato); o Pydantic converte pra float na saída (ok aqui, é só exibição)
+- ResumoDashboardSaida — a "capa" do painel: contagens totais em uma query só
+'''
