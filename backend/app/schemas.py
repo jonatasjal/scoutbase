@@ -355,3 +355,54 @@ class ResumoDashboardSaida(BaseModel):
 - media_nota: float — o banco guarda nota como Decimal (exato); o Pydantic converte pra float na saída (ok aqui, é só exibição)
 - ResumoDashboardSaida — a "capa" do painel: contagens totais em uma query só
 '''
+
+# ========================================================
+# FASE 8 — VISUALIZAÇÕES DO PERFIL
+# ========================================================
+class VisitanteRecente(BaseModel):
+    # 1 visita na lista "quem andou por aqui"
+    usuario_id: int | None     # None = anônimo (visitou sem login)
+    nome: str | None           # nome de quem logou (None se anônimo)
+    visto_em: datetime         # quando a visita aconteceu
+
+class VisualizacoesSaida(BaseModel):
+    # O painel "meu perfil foi visto" — só o dono recebe
+    atleta_id: int
+    total_visitas: int         # COUNT(*) de linhas da tabela
+    visitantes_unicos: int     # DISTINCT de quem LOGOU (anônimos ficam de fora)
+    visitas_anonimas: int      # WHERE visitante IS NULL
+    ultima_visita: datetime | None   # MAX(criado_em) — None se nunca viram
+    visitantes_recentes: list[VisitanteRecente]   # últimos 10
+
+'''
+- total vs únicos: 5 visitas do MESMO olheiro = 5 totais, 1 único.
+  "Total" mede frequência; "únicos" mede ALCANCE.
+- anônimas: entram no total, mas NÃO em visitantes_unicos
+  (sem login não dá pra saber quem foi -> não vira "visitante")
+'''
+
+# ========================================================
+# FASE 8 — VISUALIZAÇÕES DO PERFIL
+# ========================================================
+class VisitanteRecente(BaseModel):
+    # 1 visita na lista "quem andou por aqui"
+    usuario_id: int | None     # None = anônimo (visitou sem login)
+    nome: str | None           # nome de quem logou (None se anonimo)
+    visto_em: datetime         # quando a visita ocorreu
+
+class VisualizacoesSaida(BaseModel):
+    # O painel "meu perfil foi visto" — só o dono recebe
+    atleta_id: int
+    total_visitas: int                  # COUNT(*) de linhas da tabela
+    visitantes_unicos: int              # DISTINCT de quem LOGOU (anônimos ficam de fora)
+    visitas_anonimas: int               # WHERE visitante IS NULL
+    ultima_visita: datetime | None      # MAX(criado_em) — None se nunca viram
+    visitantes_recentes: list[VisitanteRecente]   # últimos 10
+
+'''
+- total vs únicos: 5 visitas do MESMO olheiro = 5 totais, 1 único.
+  "Total" mede frequência; "únicos" mede ALCANCE.
+- anônimas: entram no total, mas NÃO em visitantes_unicos
+  (sem login não dá pra saber quem foi -> não vira "visitante")
+- datetime já importado no topo do arquivo (linha 32)
+'''

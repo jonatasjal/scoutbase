@@ -7,9 +7,11 @@ from sqlalchemy.orm import Session
 
 # Conexão com o banco, models, schemas do perfil e o "guarda de porta"
 from app.database import get_db
-from app.models import Usuario, Atleta, TipoUsuario, VideoAtleta, EstatisticaAtleta
-from app.schemas import PerfilAtletaDados, PerfilAtletaSaida, VideoSaida, EstatisticaSaida
-from app.deps import get_current_user
+from app.models import Usuario, Atleta, TipoUsuario, VideoAtleta, EstatisticaAtleta, Visualizacao
+from app.schemas import (PerfilAtletaDados, PerfilAtletaSaida, VideoSaida, EstatisticaSaida,
+                         VisualizacoesSaida, VisitanteRecente)
+from app.deps import get_current_user, get_current_user_optional
+from sqlalchemy import func   # COUNT, MAX, DISTINCT das métricas
 
 # prefix = toda rota começa com /perfil ; tags = grupo no Swagger
 router = APIRouter(prefix = '/perfil', tags = ['perfil'])
@@ -59,31 +61,51 @@ def completar_perfil(
 # O FastAPI lê o número depois da barra e entrega em atleta_id (string "1"
 # vira int automaticamente; "abc" vira erro 422 — nem chega na função).
 #
-# SEM Depends(get_current_user) de propósito! É público: o olheiro que ainda
-# não tem conta pode olhar o vitrine antes de se cadastrar.
+# NOVIDADE Fase 8: visitante OPCIONAL — sem token a rota continua pública;
+# com token, sabemos quem visitou (e o dono não conta view própria).
 @router.get('/{atleta_id}', response_model = PerfilAtletaSaida)
-def ver_perfil(atleta_id: int, db: Session = Depends(get_db)):
+def ver_perfil(
+    atleta_id: int,
+    visitante: Usuario | None = Depends(get_current_user_optional),
+    db: Session = Depends(get_db)
+):
     # 1) Procura a ficha do atleta no banco
     atleta = db.query(Atleta).filter(Atleta.id == atleta_id).first()
 
     # 2) Se não achou esse atleta, devolve 404 (não encontrado) (padrão web: a página
     #    que o navegador mostra quando o link está quebrado)
     #    Repare: 404 e não 401 — aqui não é "falta de permissão",
-    #    é "este atleta não existe".
+    #    é "este atleta não existe no mundo".
     if atleta is None:
         raise HTTPException(
             status_code = 404,
             detail = 'Atleta não encontrado'
         )
-    # 3) Devolve a ficha e o PerfilAtletaSaida garante que SÓ saiam dados públicos (sem email, sem senha, sem token)
+
+    # 3) REGISTRO DA VISITA — efeito colateral num GET (deliberado aqui):
+    #    o produto é "contar quem olhou". REGRA DE OURO do tracking:
+    #    se o insert falhar, a busca do perfil NUNCA pode quebrar por isso.
+    try:
+        # Anti-inflação: dono visitando o próprio perfil NÃO conta view
+        if visitante is None or visitante.id != atleta.usuario_id:
+            db.add(Visualizacao(
+                atleta_id = atleta.id,
+                # visitante.id ou None -> None = anônimo (mesmo sem login conta view)
+                usuario_visitante_id = visitante.id if visitante else None
+            ))
+            db.commit()   # grava a visita
+    except Exception:
+        db.rollback()     # tracking deu erro? libera a sessão e segue a busca
+
+    # 4) Devolve a ficha e o PerfilAtletaSaida garante que SÓ saiam dados públicos (sem email, sem senha, sem token)
     return atleta
 
 
 # 3 detalhes importantes:
 '''
-Sem token = público — diferente do PUT /completar (que exige get_current_user). Mesmo arquivo, portas 
+Sem token = público — diferente do PUT /completar (que exige get_current_user). Mesmo arquivo, portas
 com regras diferentes. 404 e não 401 — 401 = "falta crachá"; 404 = "esse id não existe no mundo".
-response_model = PerfilAtletaSaida — o escudo: mesmo que o objeto atleta no banco tenha campos 
+response_model = PerfilAtletaSaida — o escudo: mesmo que o objeto atleta no banco tenha campos
 internos, o Swagger só deixa passar os campos declarados no schema (por isso a senha/email nunca vazam).
 '''
 
@@ -139,4 +161,74 @@ def listar_estatisticas_do_perfil(
         consulta = consulta.filter(EstatisticaAtleta.temporada == temporada)
 
     return consulta.order_by(EstatisticaAtleta.metrica).all()      # ordem alfabética
+
+
+# ---------------------------------------------------------------------------
+# GET /perfil/{atleta_id}/visualizacoes — métricas de quem viu (SÓ o dono)
+# ---------------------------------------------------------------------------
+# Combina as duas portas que já conhecemos:
+#   get_current_user → sem token = 401
+#   comparação dono  → token de OUTRA pessoa = 403 (existe, mas não é seu)
+@router.get('/{atleta_id}/visualizacoes', response_model = VisualizacoesSaida)
+def minhas_visualizacoes(
+    atleta_id: int,
+    usuario: Usuario = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    # 1) O atleta existe? (404 ANTES de discussão de permissão — ordem importa)
+    atleta = db.query(Atleta).filter(Atleta.id == atleta_id).first()
+    if atleta is None:
+        raise HTTPException(status_code = 404, detail = 'Atleta não encontrado')
+
+    # 2) Só o DONO vê as métricas do próprio perfil
+    if usuario.id != atleta.usuario_id:
+        raise HTTPException(status_code = 403, detail = 'Só o próprio atleta vê as métricas do seu perfil')
+
+    # 3) Os contadores — TUDO da mesma tabela visualizacao, então pode ser
+    #    em várias queries pequenas sem medo de cross join (o erro da Fase 7!
+    #    cross join só assusta quando você mistura tabelas DIFERENTES sem JOIN)
+    base = db.query(Visualizacao).filter(Visualizacao.atleta_id == atleta_id)
+
+    total = base.count()                                    # COUNT(*)
+    anonimas = base.filter(Visualizacao.usuario_visitante_id.is_(None)).count()
+    # DISTINCT: anônimos (NULL) não contam como "visitante único"
+    unicos = (
+        db.query(func.count(func.distinct(Visualizacao.usuario_visitante_id)))
+        .filter(Visualizacao.atleta_id == atleta_id)
+        .scalar() or 0                                      # None -> 0
+    )
+    # MAX(criado_em): a visita mais recente (None = ninguém visitou ainda)
+    ultima = (
+        db.query(func.max(Visualizacao.criado_em))
+        .filter(Visualizacao.atleta_id == atleta_id)
+        .scalar()
+    )
+
+    # 4) Últimos 10 visitantes — outerjoin no Usuario porque o anônimo
+    #    NÃO tem linha de usuário (INNER JOIN descartaria a visita dele!)
+    linhas = (
+        db.query(Visualizacao, Usuario)
+        .outerjoin(Usuario, Usuario.id == Visualizacao.usuario_visitante_id)
+        .filter(Visualizacao.atleta_id == atleta_id)
+        .order_by(Visualizacao.criado_em.desc())   # mais recente primeiro
+        .limit(10)
+        .all()
+    )
+    recentes = [
+        VisitanteRecente(
+            usuario_id = v.usuario_visitante_id,       # None = anônimo
+            nome = u.nome if u else None,              # None = anônimo
+            visto_em = v.criado_em,
+        )
+        for v, u in linhas     # cada linha é a TUPLA (visualizacao, usuario)
+    ]
+
+    return VisualizacoesSaida(
+        atleta_id = atleta_id,
+        total_visitas = total,
+        visitantes_unicos = unicos,
+        visitas_anonimas = anonimas,
+        ultima_visita = ultima,
+        visitantes_recentes = recentes,
+    )
     
