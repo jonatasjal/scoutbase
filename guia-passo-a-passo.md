@@ -1168,3 +1168,17 @@ cd C:\Users\jonat\Desktop\ScoutBase\backend
 - [x] Commit `3f8ae44` — "Fase 7: dashboard de rankings (top atletas, ranking olheiros, resumo)"
 
 ✅ **Fase 7 encerrada** (22/10/2026). Lição da fase: produto cartesiano (tabela no SELECT sem JOIN) e HAVING ≠ WHERE.
+
+---
+
+## Checklist da Fase 8 — Visualização de perfil (FECHADA ✅ em 27/10/2026)
+
+- [x] `get_current_user_optional` em `deps.py` — dependência opcional (sem token = None, token ruim = 401) ✅
+- [x] `GET /perfil/{id}` registra visita (anti-inflação: dono não conta; try/rollback no tracking) ✅
+- [x] `GET /perfil/{id}/visualizacoes` — total, únicos, anônimas, última + últimos 10 visitantes (outerjoin) — só o dono (401/403/404) ✅
+- [x] Schemas `VisitanteRecente` / `VisualizacoesSaida` ✅
+- [x] Testado 8/8 (27/10/2026): anônima 200, messi 200, dono não conta (total=2), 401, 403, métricas `total=2 unicos=1 anonimas=1`, 404 id 999, OpenAPI **29 endpoints** (plano disse 31 — errado)
+- [x] Fix: bloco `'''` duplicado no perfil.py (edit do assistente) → SyntaxError corrigido
+- [x] Commit `21314c4` — "Fase 8: visualizacao de perfil com metricas so do dono"
+
+✅ **Fase 8 encerrada** (27/10/2026). Lição da fase: dependência opcional, efeito colateral em GET, outerjoin vs inner join, ordem das checagens 404→403→401.
