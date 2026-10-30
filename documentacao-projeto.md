@@ -362,7 +362,7 @@ A lógica aqui é: **cada fase entrega algo que funciona e pode ser demonstrado*
     - [x] 9.5 Login + cadastro + sessão (AuthContext, localStorage, token automático no client.js)
     - [x] 9.6 Minha conta (rota protegida, ficha pré-preenchida, visualizações, upload FormData)
     - [x] `EuSaida` no backend (`/auth/me` devolve `atleta_id`); limpeza de duplicata Fase 8
-    - Commit: `31a1c62`
+    - Commit: `582aace`
 
 **Endpoints que já respondem hoje:** `GET /health`, `GET /`, `POST /auth/cadastro`, `POST /auth/login`, `GET /auth/me`, `PUT /perfil/completar`, `GET /perfil/{id}`, `GET /perfil/{id}/videos`, `GET /perfil/{id}/estatisticas`, `POST /videos/upload`, `POST /estatisticas`, `GET /atletas`, `PUT /olheiro/completar`, `POST`/`DELETE /atletas/{id}/favoritar`, `GET /meus-favoritos`, `POST /mensagens`, `GET /mensagens/conversa/{id}`, `PUT /mensagens/lidas/{id}`, `GET /mensagens/nao-lidas`, `POST /responsaveis`, `GET /responsaveis/meus-vinculos`, `DELETE /responsaveis/{id}`, `POST /avaliacoes`, `GET /avaliacoes/{tipo}/{id}`, `GET /avaliacoes/minhas`, `GET /dashboard/top-atletas`, `GET /dashboard/ranking-olheiros`, `GET /dashboard/resumo`, `GET /perfil/{id}/visualizacoes` — e mídia em `/media/uploads/{arquivo}`.
 
