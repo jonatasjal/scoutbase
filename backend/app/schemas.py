@@ -79,6 +79,12 @@ class UsuarioSaida(BaseModel):
     model_config = ConfigDict(from_attributes = True)
 
 
+# NOVIDADE Fase 9.6: o /auth/me devolve +1 campo — o id da ficha de atleta.
+# Herda TODOS os campos de UsuarioSaida e acrescenta só o atleta_id.
+class EuSaida(UsuarioSaida):
+    atleta_id: int | None = None   # None = não é atleta (ou ainda sem ficha)
+
+
 # ---------------------------------------------------------------------------
 # ENTRADA — dados para COMPLETAR o perfil do atleta (PUT /perfil/completar)
 # ---------------------------------------------------------------------------
@@ -372,31 +378,6 @@ class VisualizacoesSaida(BaseModel):
     visitantes_unicos: int     # DISTINCT de quem LOGOU (anônimos ficam de fora)
     visitas_anonimas: int      # WHERE visitante IS NULL
     ultima_visita: datetime | None   # MAX(criado_em) — None se nunca viram
-    visitantes_recentes: list[VisitanteRecente]   # últimos 10
-
-'''
-- total vs únicos: 5 visitas do MESMO olheiro = 5 totais, 1 único.
-  "Total" mede frequência; "únicos" mede ALCANCE.
-- anônimas: entram no total, mas NÃO em visitantes_unicos
-  (sem login não dá pra saber quem foi -> não vira "visitante")
-'''
-
-# ========================================================
-# FASE 8 — VISUALIZAÇÕES DO PERFIL
-# ========================================================
-class VisitanteRecente(BaseModel):
-    # 1 visita na lista "quem andou por aqui"
-    usuario_id: int | None     # None = anônimo (visitou sem login)
-    nome: str | None           # nome de quem logou (None se anonimo)
-    visto_em: datetime         # quando a visita ocorreu
-
-class VisualizacoesSaida(BaseModel):
-    # O painel "meu perfil foi visto" — só o dono recebe
-    atleta_id: int
-    total_visitas: int                  # COUNT(*) de linhas da tabela
-    visitantes_unicos: int              # DISTINCT de quem LOGOU (anônimos ficam de fora)
-    visitas_anonimas: int               # WHERE visitante IS NULL
-    ultima_visita: datetime | None      # MAX(criado_em) — None se nunca viram
     visitantes_recentes: list[VisitanteRecente]   # últimos 10
 
 '''

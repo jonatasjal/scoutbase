@@ -1,0 +1,23 @@
+.vitrine { max-width: 1000px; margin: 0 auto; padding: 24px; }
+.total { color: var(--texto-fundo); }
+
+.filtros { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
+
+.grade {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  /* auto-fill = quantos cairem; minmax(220px,1fr) = no mínimo 220px */
+}
+
+.erro { color: var(--vermelho); }
+
+.paginacao {
+  display: flex; gap: 16px; align-items: center;
+  justify-content: center; margin-top: 24px;
+}
+.paginacao button {
+  background: var(--verde); color: #fff; border: none;
+  padding: 8px 16px; border-radius: 8px; cursor: pointer;
+}
+.paginacao button:disabled { opacity: .4; cursor: default; }

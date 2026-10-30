@@ -25,8 +25,8 @@ from sqlalchemy.orm import Session
 
 # Tomada de conexão com o banco, model Usuario, schema de entrada/saída, hash de senha
 from app.database import get_db
-from app.models import Usuario
-from app.schemas import UsuarioCadastro, UsuarioLogin, Token, UsuarioSaida
+from app.models import Usuario, Atleta, TipoUsuario
+from app.schemas import UsuarioCadastro, UsuarioLogin, Token, UsuarioSaida, EuSaida
 # verificar_senha = confere a senha; criar_token = emite o crachá JWT
 from app.security import hash_senha, verificar_senha, criar_token
 # O guarda de porta: só entrega o usuário se o token da requisição for válido
@@ -101,10 +101,14 @@ def login(dados: UsuarioLogin, db: Session = Depends(get_db)):
 # ---------------------------------------------------------------------------
 # GET /auth/me — "quem sou eu?" com token válido (primeira rota PROTEGIDA)
 # ---------------------------------------------------------------------------
-@router.get('/me', response_model = UsuarioSaida)
-def meu_perfil(usuario: Usuario = Depends(get_current_user)):
-    # Se a linha chegou até aqui, o token já foi APROVADO pelo get_current_user
-    # e ele te entregou o objeto Usuario — é só devolver.
-    # Sem token / token ruim / expirado: o FastAPI nem chama essa função,
-    # o 401 é lançado antes, dentro da dependência.
-    return usuario
+@router.get('/me', response_model = EuSaida)
+def meu_perfil(usuario: Usuario = Depends(get_current_user), db: Session = Depends(get_db)):
+    # Se o token passou no guarda, temos o usuario — falta a ficha de atleta (se houver)
+    atleta_id = None
+    if usuario.tipo_usuario == TipoUsuario.atleta:
+        ficha = db.query(Atleta).filter(Atleta.usuario_id == usuario.id).first()
+        if ficha is not None:
+            atleta_id = ficha.id
+    # model_dump() = "desmonta" o schema em dicionário comum {...}
+    dados = UsuarioSaida.model_validate(usuario).model_dump()
+    return EuSaida(**dados, atleta_id = atleta_id)

@@ -1,0 +1,22 @@
+.cartao-secao {
+  background: var(--cartao); border: 1px solid var(--borda);
+  border-radius: 12px; padding: 20px; margin: 16px 0;
+}
+.cartao-secao h2 { margin: 0 0 12px; font-size: 18px; }
+.cartao-secao a { color: var(--verde); }
+
+.grade-campos {
+  display: grid; gap: 12px;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 600px) { .grade-campos { grid-template-columns: 1fr 1fr; } }
+.grade-campos label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--texto-fundo); }
+.largura-toda { grid-column: 1 / -1; }   /* ocupa a linha inteira */
+
+.sucesso { color: var(--verde); }
+
+.lista-recentes, .lista-videos { list-style: none; padding: 0; margin: 0; }
+.lista-recentes li, .lista-videos li {
+  padding: 8px 0; border-bottom: 1px solid var(--borda); font-size: 14px;
+}
+.lista-recentes span, .lista-videos span { color: var(--texto-fundo); float: right; }

@@ -1,0 +1,50 @@
+/* Estilos globais — a Fase 9.2 traz as variáveis de tema */
+/* index.css — tema do ScoutBase (CSS puro com variáveis) */
+/* :root = variáveis globais; usamos com var(--cor-x) em qualquer arquivo */
+:root {
+  --verde: #0e9f6e;
+  --verde-escuro: #0a7a55;
+  --fundo: #0f172a;        /* fundo azul-escuro "noite" */
+  --cartao: #1e293b;       /* cartão um pouco mais claro */
+  --texto: #e2e8f0;        /* texto claro */
+  --texto-fundo: #94a3b8;  /* texto secundário acinzentado */
+  --borda: #334155;
+  --vermelho: #ef4444;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--fundo);
+  color: var(--texto);
+  font-family: system-ui, sans-serif;
+}
+
+/* input/select herdando o visual escuro */
+input, select {
+  background: var(--cartao);
+  color: var(--texto);
+  border: 1px solid var(--borda);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 14px;
+}
+
+/* topo = cabeçalho do site */
+.topo {
+  display: flex; align-items: center;
+  padding: 14px 24px;
+  background: var(--cartao);
+  border-bottom: 1px solid var(--borda);
+}
+/* topo */
+.topo nav { display: flex; gap: 18px; align-items: center; }
+.topo a { color: var(--texto-fundo); text-decoration: none; font-weight: 500; }
+.topo a:hover { color: var(--verde); }
+.topo-logo { font-size: 20px; font-weight: bold; color: var(--verde) !important; }
+.botao-sair {
+  background: none; border: 1px solid var(--borda); color: var(--texto-fundo);
+  padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 14px;
+}
+.botao-sair:hover { color: var(--vermelho); border-color: var(--vermelho); background: none; }

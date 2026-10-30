@@ -1185,27 +1185,26 @@ cd C:\Users\jonat\Desktop\ScoutBase\backend
 
 ---
 
-## Checklist da Fase 9 — Frontend React (🔄 EM ANDAMENTO — 29/10/2026)
+## Checklist da Fase 9 — Frontend React (FECHADA ✅ em 29/10/2026)
 
 ### Blocos concluídos
 
 - [x] **9.1 Setup** ✅ (29/10/2026) — Vite 8 + React 19 + ESLint em `frontend/`; `vite.config.js` com **proxy `/api` → :8000** (evita CORS); estrutura `src/{api,components,pages}`; `src/api/client.js` (helper `api()` com params/token/erros); App.jsx "oi" renderizando em `:5173`
 - [x] **9.2 Vitrine de atletas** ✅ (29/10/2026) — `react-router-dom`; tema CSS com variáveis (`index.css`); componente `CartaoAtleta` (Link SPA, avatar com inicial, `nome ?? 'Atleta'`); `pages/Vitrine.jsx` com filtros reativos (`useEffect` refaz a busca), paginação e 3 estados (loading/erro/dados); grade `auto-fill`
 - [x] **9.3 Perfil do atleta** ✅ (29/10/2026) — rota `/perfil/:atleta_id` + `useParams()`; `Promise.all` (ficha + vídeos + estatísticas); `reduce` agrupando stats por competição+temporada; `Number(valor)` convertendo Decimal do JSON; player `<video src={/api+url_ou_caminho}>`; 404 do backend vira mensagem na tela
+- [x] **9.4 Rankings** ✅ (29/10/2026) — página `/rankings` com 7 cards de resumo, top atletas e top olheiros; medalhas 🥇🥈🥉; `toFixed(2)` para médias; Link do top leva pro perfil
+- [x] **9.5 Login + cadastro** ✅ (29/10/2026) — `AuthContext` (contexto React com token em `localStorage`); páginas Login e Cadastro; `client.js` busca token automático do `localStorage`; 401 limpa sessão; botão Sair; `Navigate` redireciona sem login
+- [x] **9.6 Minha conta** ✅ (29/10/2026) — rota `/minha-conta` protegida; `EuSaida` no backend (`/auth/me` devolve `atleta_id`); form ficha (pré-preenchido via `PUT /perfil/completar`); painel visualizações; upload de vídeo (`FormData` + `client.js`); limpeza de duplicata Fase 8 no `schemas.py`
+- [x] Testado 6/6 blocos (29/10/2026): vitrine 200, perfil com stats+2 vídeos, rankings com medalhas, login joão + recarregar sessão, cadastro olheiro, `/minha-conta` com ficha pré-preenchida + 4 views + upload
+- [x] Commit: `pendente até agora`
 
-### Pendências
-
-- [ ] 9.4 Rankings — página do dashboard (`GET /dashboard/top-atletas`, `ranking-olheiros`, `resumo`)
-- [ ] 9.5 Login + cadastro + token em contexto React
-- [ ] 9.6 Telas autenticadas (ficha própria, upload de vídeo, favoritos)
-- [ ] Testes finais da fase + commit do `frontend/` + fechar checklist
-
-### Lições/dicas desta fase até agora
+### Lições desta fase
 
 - **IPv6:** `localhost` ≠ `127.0.0.1` — o Vite escuta em `localhost` (às vezes `::1`); curl em `127.0.0.1` dava falso "HTTP 000"
 - **"Erro inesperado" no React** quase sempre é erro 500 no backend → testar `/api/...` direto antes de culpar o front
 - **Docker** parou de novo no meio (banco 500) → religar Docker Desktop + `docker start scoutbase-db`
-- **`npm install` na raiz** (fora de `frontend/`) cria `package.json` lixo na raiz — apagar; scripts (`npm run dev`) só existem em `frontend/`
+- **`npm install` na raiz** (fora de `frontend/`) cria `package.json` lixo na raiz — scripts só existem em `frontend/`
 - **Zumbis:** portas 5173/5174/5175 ocupadas por vite antigo → matar processos `node` com `*vite*` no CommandLine
-- **Vídeos "fake":** os 2 arquivos de `backend/media/uploads/` têm 12 bytes com texto `video fake` (teste da Fase 2) — player não toca; subir `.mp4` real pra testar de verdade
-- Cuidado com edit duplicando bloco de texto (causou SyntaxError no perfil.py na Fase 8 — conferir sempre)
+- **Vídeos "fake":** os 2 arquivos de `backend/media/uploads/` têm 12 bytes com texto `video fake` (teste da Fase 2) — player não toca
+- **Duplicatas de texto:** bloco `'''` no perfil.py (Fase 8) e classes de schemas duplicadas (Fase 8/9) — conferir sempre
+- **Hook antes de return:** no React, `useState`/`useEffect` sempre antes de qualquer `return` condicional (regra do React)

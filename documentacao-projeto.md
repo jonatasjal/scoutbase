@@ -354,11 +354,15 @@ A lógica aqui é: **cada fase entrega algo que funciona e pode ser demonstrado*
    - [x] Schemas `VisitanteRecente` / `VisualizacoesSaida`; tabela `visualizacao` (pronta desde a Fase 2, sem migration)
    - Commit: `21314c4`
 
-10. 🔄 Fase 9 — Frontend React (EM ANDAMENTO desde 29/10/2026):
+10. ✅ Fase 9 — Frontend React (FECHADA 29/10/2026):
     - [x] 9.1 Setup Vite + proxy `/api` → `:8000` + helper `src/api/client.js`
     - [x] 9.2 Vitrine de atletas (filtros reativos, paginação, cartões) — rotas `/` e componentes `CartaoAtleta`/`Vitrine`
     - [x] 9.3 Perfil do atleta (`/perfil/:id` — ficha, estatísticas agrupadas por competição, player de vídeo)
-    - [ ] 9.4 Rankings · [ ] 9.5 Login/cadastro no front · [ ] 9.6 Telas autenticadas
+    - [x] 9.4 Rankings (resumo + top atletas + top olheiros, medalhas 🥇🥈🥉)
+    - [x] 9.5 Login + cadastro + sessão (AuthContext, localStorage, token automático no client.js)
+    - [x] 9.6 Minha conta (rota protegida, ficha pré-preenchida, visualizações, upload FormData)
+    - [x] `EuSaida` no backend (`/auth/me` devolve `atleta_id`); limpeza de duplicata Fase 8
+    - Commit: `31a1c62`
 
 **Endpoints que já respondem hoje:** `GET /health`, `GET /`, `POST /auth/cadastro`, `POST /auth/login`, `GET /auth/me`, `PUT /perfil/completar`, `GET /perfil/{id}`, `GET /perfil/{id}/videos`, `GET /perfil/{id}/estatisticas`, `POST /videos/upload`, `POST /estatisticas`, `GET /atletas`, `PUT /olheiro/completar`, `POST`/`DELETE /atletas/{id}/favoritar`, `GET /meus-favoritos`, `POST /mensagens`, `GET /mensagens/conversa/{id}`, `PUT /mensagens/lidas/{id}`, `GET /mensagens/nao-lidas`, `POST /responsaveis`, `GET /responsaveis/meus-vinculos`, `DELETE /responsaveis/{id}`, `POST /avaliacoes`, `GET /avaliacoes/{tipo}/{id}`, `GET /avaliacoes/minhas`, `GET /dashboard/top-atletas`, `GET /dashboard/ranking-olheiros`, `GET /dashboard/resumo`, `GET /perfil/{id}/visualizacoes` — e mídia em `/media/uploads/{arquivo}`.
 

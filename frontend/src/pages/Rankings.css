@@ -1,0 +1,26 @@
+.cards-resumo {
+  display: grid; gap: 12px; margin: 16px 0 24px;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+}
+.card-num {
+  background: var(--cartao); border: 1px solid var(--borda);
+  border-radius: 12px; padding: 14px; text-align: center;
+}
+.card-num b { display: block; font-size: 24px; color: var(--texto); }
+.card-num span { font-size: 12px; color: var(--texto-fundo); }
+.card-num.destaque b { color: var(--verde); }
+
+.colunas { display: grid; gap: 24px; grid-template-columns: 1fr; }
+@media (min-width: 700px) { .colunas { grid-template-columns: 1fr 1fr; } }
+
+.lista-ranking { list-style: none; padding: 0; margin: 0; }
+.lista-ranking li {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  background: var(--cartao); border: 1px solid var(--borda);
+  border-radius: 12px; padding: 12px 16px; margin-bottom: 8px;
+}
+.medalha { font-size: 18px; min-width: 28px; text-align: center; }
+.nome { color: var(--texto); font-weight: bold; text-decoration: none; }
+a.nome:hover { color: var(--verde); }
+.detalhe { margin-left: auto; color: var(--texto-fundo); font-size: 14px; }
+.detalhe b { color: var(--verde); }

@@ -1,0 +1,29 @@
+.auth { display: flex; justify-content: center; padding-top: 48px; }
+
+.caixa-auth {
+  width: 100%; max-width: 380px;
+  background: var(--cartao); border: 1px solid var(--borda);
+  border-radius: 12px; padding: 28px;
+  display: flex; flex-direction: column; gap: 14px;
+}
+.caixa-auth h1 { margin: 0 0 8px; text-align: center; }
+
+label { display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: var(--texto-fundo); }
+
+input, select {
+  padding: 10px 12px; border-radius: 8px;
+  border: 1px solid var(--borda); background: var(--fundo); color: var(--texto);
+}
+
+/* escopo em .caixa-auth: SEM isso, o button pintaria o "Sair" do topo também */
+.caixa-auth button {
+  padding: 12px; border: none; border-radius: 8px;
+  background: var(--verde); color: #fff; font-size: 16px; font-weight: bold;
+  cursor: pointer;
+}
+.caixa-auth button:disabled { opacity: 0.6; cursor: wait; }
+.caixa-auth button:hover:not(:disabled) { background: var(--verde-escuro); }
+
+.erro { color: var(--vermelho); margin: 0; font-size: 14px; }
+.rodape { text-align: center; font-size: 14px; color: var(--texto-fundo); margin: 4px 0 0; }
+.rodape a { color: var(--verde); }
