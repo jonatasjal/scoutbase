@@ -354,6 +354,12 @@ A lógica aqui é: **cada fase entrega algo que funciona e pode ser demonstrado*
    - [x] Schemas `VisitanteRecente` / `VisualizacoesSaida`; tabela `visualizacao` (pronta desde a Fase 2, sem migration)
    - Commit: `21314c4`
 
+10. 🔄 Fase 9 — Frontend React (EM ANDAMENTO desde 29/10/2026):
+    - [x] 9.1 Setup Vite + proxy `/api` → `:8000` + helper `src/api/client.js`
+    - [x] 9.2 Vitrine de atletas (filtros reativos, paginação, cartões) — rotas `/` e componentes `CartaoAtleta`/`Vitrine`
+    - [x] 9.3 Perfil do atleta (`/perfil/:id` — ficha, estatísticas agrupadas por competição, player de vídeo)
+    - [ ] 9.4 Rankings · [ ] 9.5 Login/cadastro no front · [ ] 9.6 Telas autenticadas
+
 **Endpoints que já respondem hoje:** `GET /health`, `GET /`, `POST /auth/cadastro`, `POST /auth/login`, `GET /auth/me`, `PUT /perfil/completar`, `GET /perfil/{id}`, `GET /perfil/{id}/videos`, `GET /perfil/{id}/estatisticas`, `POST /videos/upload`, `POST /estatisticas`, `GET /atletas`, `PUT /olheiro/completar`, `POST`/`DELETE /atletas/{id}/favoritar`, `GET /meus-favoritos`, `POST /mensagens`, `GET /mensagens/conversa/{id}`, `PUT /mensagens/lidas/{id}`, `GET /mensagens/nao-lidas`, `POST /responsaveis`, `GET /responsaveis/meus-vinculos`, `DELETE /responsaveis/{id}`, `POST /avaliacoes`, `GET /avaliacoes/{tipo}/{id}`, `GET /avaliacoes/minhas`, `GET /dashboard/top-atletas`, `GET /dashboard/ranking-olheiros`, `GET /dashboard/resumo`, `GET /perfil/{id}/visualizacoes` — e mídia em `/media/uploads/{arquivo}`.
 
 **Testes validados na Fase 2 (até 13/10/2026):** cadastro→login→perfil do zero (TRUNCATE CASCADE); PUT idempotente (mesmo `id` em 2 chamadas); GET público 200/404/422; upload 201 com uuid no disco; `.txt` → 400; sem token → 401; `/media/...` → 200 `video/mp4` (inclusive com 304 de cache do navegador); `/perfil/1/videos` → 200 com 2 vídeos; `/perfil/999/videos` → 404. **14/10 (estatísticas):** POST 201 com upsert (atualiza em vez de duplicar); `valor: 0` → 422; sem token → 401; lista pública 200 com filtros; `?temporada=1999` → `[]`; `/perfil/999/estatisticas` → 404.
