@@ -17,7 +17,7 @@ from app.deps import get_current_user
 from app.models import Mensagem, Usuario, Atleta, ResponsavelLegal, TipoUsuario
 from app.routers.atletas import calcular_idade   # mesma função da vitrine (reuso!), Atleta, ResponsavelLegal, TipoUsuario
 from app.routers.atletas import calcular_idade   # mesma função da vitrine (reuso!)
-from app.schemas import MensagemEnvia, MensagemSaida, LidasSaida
+from app.schemas import MensagemEnvia, MensagemSaida, LidasSaida, ConversaSaida
 
 router = APIRouter(prefix = '/mensagens', tags = ['mensagens'])
 # prefix = /mensagens -> todas as rotas já naem com /mensagens na frente
@@ -185,3 +185,50 @@ sem eles a precedência inverte o resultado (mesma regra de matemática: × ante
 2. .in_({...}) — "traga só os usuários cujo id está NESTE conjunto". O {...} é um set (conjunto, sem repetição) montado 
 com set comprehension: {m.remetente_id for m in linhas}. Isso evita N queries — uma só.
 '''
+
+# --- Caixa de entrada: com quem já conversei (Fase 10.1) ---------------------
+@router.get('/conversas', response_model= list[ConversaSaida])
+def listar_conversas(
+    db: Session = Depends(get_db),
+    usuario = Depends(get_current_user)   
+): 
+    # 1) TODAS as minhas mensagenbs em ordem cronológica (em uma query só)
+    linhas = (
+        db.query(Mensagem)
+        .filter((Mensagem.remetente_id == usuario.id) | (Mensagem.destinatario_id == usuario.id)
+    )
+    .order_by(Mensagem.criado_em)
+    .all()
+)
+    # 2) Agrupa em Python por "o outro lado" da conversa
+    # um reduce não seria o ideal aqui, então usamos um dict comum que deixa mais legível
+    # Como a lista vem ordenada, a última mensam de cada para é a mais recente
+    # por isso sobreescrevemos ultima_mensagem sempre
+    conversas: dict[int, dict] = {}
+    for m in linhas:
+        # se eu enviei, o 'outro' é o destinatário, se eu recebi, o 'outro' é o remetente
+        outro_id = m.destinatario_id if m.remetente_id == usuario.id else m.remetente_id
+        c = conversas.setdefault(outro_id, {
+            'usuario_id': outro_id,
+            'nome': None,
+            'ultima_mensagem': '',
+            'ultima_data': m.criado_em,
+            'nao_lidas': 0,
+        })
+        c['ultima_mensagem'] = m.conteudo
+        c['ultima_data'] = m.criado_em
+        # só conta como nao_lidas as que chegaram para mim, pois não leio o que enviei
+        if m.destinatario_id == usuario.id and not m.lida:
+            c['nao_lidas'] += 1
+
+    # 3) Nomes de todos os "outros" em 1 query só (igual à conversa)
+    if conversas:
+        nomes = {
+            u.id: u.nome
+            for u in db.query(Usuario).filter(Usuario.id.in_(conversas.keys())).all()
+        }
+        for c in conversas.values():
+            c['nome'] = nomes.get(c['usuario_id'])
+
+    # 4) Mais recente em cima (mesma lógica de ordenar pela última mensagem)
+    return sorted(conversas.values(), key = lambda c: c['ultima_data'], reverse = True)

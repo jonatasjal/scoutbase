@@ -273,6 +273,20 @@ class MensagemSaida(BaseModel):
 
 
 # ---------------------------------------------------------------------------
+# FASE 10.1 — CONVERSAS DA CAIXA DE ENTRADA
+# ---------------------------------------------------------------------------
+# NOVIDADE Fase 10.1: uma "conversa" na caixa de entrada.
+# Não é a mensagem em si, é o RESUMO: com quem falei, o que foi
+# a última coisa dita e quantas mensagens minhas estão sem ler.
+class ConversaSaida(BaseModel):
+    usuario_id: int            # id do OUTRO usuário (pra abrir o chat)
+    nome: str | None           # nome dele (contas antigas podem não ter)
+    ultima_mensagem: str       # texto da última mensagem da conversa
+    ultima_data: datetime      # quando ela foi enviada (ordena a lista)
+    nao_lidas: int             # quantas ele me mandou e eu ainda não abri
+
+
+# ---------------------------------------------------------------------------
 # FASE 4.2 — LIDO / NÃO LIDO
 # ---------------------------------------------------------------------------
 
