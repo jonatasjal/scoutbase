@@ -1196,7 +1196,7 @@ cd C:\Users\jonat\Desktop\ScoutBase\backend
 - [x] **9.5 Login + cadastro** ✅ (29/10/2026) — `AuthContext` (contexto React com token em `localStorage`); páginas Login e Cadastro; `client.js` busca token automático do `localStorage`; 401 limpa sessão; botão Sair; `Navigate` redireciona sem login
 - [x] **9.6 Minha conta** ✅ (29/10/2026) — rota `/minha-conta` protegida; `EuSaida` no backend (`/auth/me` devolve `atleta_id`); form ficha (pré-preenchido via `PUT /perfil/completar`); painel visualizações; upload de vídeo (`FormData` + `client.js`); limpeza de duplicata Fase 8 no `schemas.py`
 - [x] Testado 6/6 blocos (29/10/2026): vitrine 200, perfil com stats+2 vídeos, rankings com medalhas, login joão + recarregar sessão, cadastro olheiro, `/minha-conta` com ficha pré-preenchida + 4 views + upload
-- [x] Commit: `pendente até agora`
+- [x] Commit: `582aace` (Fase 9 completa) + `8d178c8` (correção de hash na doc)
 
 ### Lições desta fase
 
@@ -1208,3 +1208,23 @@ cd C:\Users\jonat\Desktop\ScoutBase\backend
 - **Vídeos "fake":** os 2 arquivos de `backend/media/uploads/` têm 12 bytes com texto `video fake` (teste da Fase 2) — player não toca
 - **Duplicatas de texto:** bloco `'''` no perfil.py (Fase 8) e classes de schemas duplicadas (Fase 8/9) — conferir sempre
 - **Hook antes de return:** no React, `useState`/`useEffect` sempre antes de qualquer `return` condicional (regra do React)
+
+---
+
+## Checklist da Fase 10 — Favoritos do olheiro (🔄 EM ANDAMENTO — 04/11/2026)
+
+> 100% frontend — o backend já tem tudo (Fase 7): `POST`/`DELETE /atletas/{id}/favoritar` + `GET /meus-favoritos`. Testado em 04/11: 201/409/404/403 ok.
+
+### Blocos
+
+- [x] **10.1 AuthContext guarda o usuário** ✅ (04/11/2026) — `usuario` (busca `/auth/me` quando há token, via `useEffect [token]`), `ehOlheiro`, `sair()` limpa `usuario`. Aluno digitou com 6 erros (chaves aninhadas dentro de `entrar`, `/auth/ogin`, `/auth/cadastrar`, `userAuth`/`userContext`, sem `ehOlheiro` no valor) → assistente corrigiu; lint limpo (1 erro velho aceito no Vitrine)
+- [ ] **10.2 Botão ❤️ no Perfil** — se `ehOlheiro`: carrega `/meus-favoritos` e compara `a.id === Number(atleta_id)`; alterna POST/DELETE; estado `favoritado`; CSS `.botao-favorito` (rosa quando ativo)
+- [ ] **10.3 Página `/favoritos`** — rota protegida (sem login → `/login`; não-olheiro → `/`); `CartaoAtleta` em grade + botão remover por card; estado vazio com link pra vitrine; link⭐ no `Topo` só quando `ehOlheiro`
+- [ ] Fecho: testar fluxo completo (messi favorita → aparece na lista → remove), lint, docs, commit
+
+### Lições
+
+- **Nunca deixar uma chave `{` "engolir" o resto do componente:** `cadastrar`/`sair`/`return` aninhados dentro de `entrar` = SyntaxError (AuthProvider sem return). Funções irmãs ficam no MESMO recuo.
+- **setState síncrono dentro de `useEffect`** é erro do lint (`react-hooks/set-state-in-effect`) — limpar estado no handler correspondente (ex.: `sair()`), não no topo do effect
+- `react-refresh/only-export-components` reclama quando o arquivo exporta componente + hook — padrão do React é manter `useAuth` junto do contexto; resolve com `// eslint-disable-next-line`
+- **Endpoints de favorito do backend:** POST 201, POST repetido 409, DELETE 200, DELETE sem favorito 404, atleta favoritando 403
