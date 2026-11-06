@@ -38,3 +38,25 @@
 }
 .video-card video { width: 100%; border-radius: 8px; background: #000; }
 .video-card p { margin: 8px 0 0; color: var(--texto-fundo); }
+
+/* ---- Botão de favoritar (só olheiro logado vê) ---- */
+.botao-favorito {
+  margin-top: 12px;
+  padding: 8px 18px;
+  border-radius: 999px;              /* pílula arredondada */
+  border: 1px solid var(--borda);
+  background: var(--cartao);
+  color: #fff;
+  font-size: 14px;
+  cursor: pointer;                   /* mãozinha ao passar o mouse */
+  transition: all .15s ease;         /* muda de cor suave */
+}
+.botao-favorito:hover {
+  border-color: var(--verde);
+}
+/* classe extra "ativo" = já está nos favoritos (vermelhinho) */
+.botao-favorito.ativo {
+  border-color: #e74c3c;
+  background: rgba(231, 76, 60, .15);
+  color: #ff8a80;
+}

@@ -1218,7 +1218,7 @@ cd C:\Users\jonat\Desktop\ScoutBase\backend
 ### Blocos
 
 - [x] **10.1 AuthContext guarda o usuário** ✅ (04/11/2026) — `usuario` (busca `/auth/me` quando há token, via `useEffect [token]`), `ehOlheiro`, `sair()` limpa `usuario`. Aluno digitou com 6 erros (chaves aninhadas dentro de `entrar`, `/auth/ogin`, `/auth/cadastrar`, `userAuth`/`userContext`, sem `ehOlheiro` no valor) → assistente corrigiu; lint limpo (1 erro velho aceito no Vitrine)
-- [ ] **10.2 Botão ❤️ no Perfil** — se `ehOlheiro`: carrega `/meus-favoritos` e compara `a.id === Number(atleta_id)`; alterna POST/DELETE; estado `favoritado`; CSS `.botao-favorito` (rosa quando ativo)
+- [x] **10.2 Botão ❤️ no Perfil** ✅ (04/11/2026) — `useAuth` no Perfil; `favoritado` via `GET /meus-favoritos` + `Number(atleta_id)`; `alternarFavorito` (POST/DELETE, corrige estado em 409/404); botão só com `ehOlheiro`; CSS `.botao-favorito` (+ `.ativo` vermelho). Aluno digitou com 3 erros (`atleta_Id` maiúsculo, `statisticas` sem e, `fase` em vez de `false`) → assistente corrigiu; lint + sintaxe OK
 - [ ] **10.3 Página `/favoritos`** — rota protegida (sem login → `/login`; não-olheiro → `/`); `CartaoAtleta` em grade + botão remover por card; estado vazio com link pra vitrine; link⭐ no `Topo` só quando `ehOlheiro`
 - [ ] Fecho: testar fluxo completo (messi favorita → aparece na lista → remove), lint, docs, commit
 
