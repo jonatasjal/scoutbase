@@ -1211,16 +1211,16 @@ cd C:\Users\jonat\Desktop\ScoutBase\backend
 
 ---
 
-## Checklist da Fase 10 — Favoritos do olheiro (🔄 EM ANDAMENTO — 04/11/2026)
+## Checklist da Fase 10 — Favoritos do olheiro (✅ FECHADA — 05/11/2026)
 
 > 100% frontend — o backend já tem tudo (Fase 7): `POST`/`DELETE /atletas/{id}/favoritar` + `GET /meus-favoritos`. Testado em 04/11: 201/409/404/403 ok.
 
 ### Blocos
 
-- [x] **10.1 AuthContext guarda o usuário** ✅ (04/11/2026) — `usuario` (busca `/auth/me` quando há token, via `useEffect [token]`), `ehOlheiro`, `sair()` limpa `usuario`. Aluno digitou com 6 erros (chaves aninhadas dentro de `entrar`, `/auth/ogin`, `/auth/cadastrar`, `userAuth`/`userContext`, sem `ehOlheiro` no valor) → assistente corrigiu; lint limpo (1 erro velho aceito no Vitrine)
-- [x] **10.2 Botão ❤️ no Perfil** ✅ (04/11/2026) — `useAuth` no Perfil; `favoritado` via `GET /meus-favoritos` + `Number(atleta_id)`; `alternarFavorito` (POST/DELETE, corrige estado em 409/404); botão só com `ehOlheiro`; CSS `.botao-favorito` (+ `.ativo` vermelho). Aluno digitou com 3 erros (`atleta_Id` maiúsculo, `statisticas` sem e, `fase` em vez de `false`) → assistente corrigiu; lint + sintaxe OK
-- [ ] **10.3 Página `/favoritos`** — rota protegida (sem login → `/login`; não-olheiro → `/`); `CartaoAtleta` em grade + botão remover por card; estado vazio com link pra vitrine; link⭐ no `Topo` só quando `ehOlheiro`
-- [ ] Fecho: testar fluxo completo (messi favorita → aparece na lista → remove), lint, docs, commit
+- [x] **10.1 AuthContext guarda o usuário** ✅ (04/11/2026) — `usuario` (busca `/auth/me` quando há token, via `useEffect [token]`), `ehOlheiro`, `sair()` limpa `usuario`. Aluno digitou com 6 erros (chaves aninhadas dentro de `entrar`, `/auth/ogin`, `/auth/cadastrar`, `userAuth`/`userContext`, sem `ehOlheiro` no valor) → assistente corrigiu; lint limpo (1 erro velho aceito no Vitrine). Commit `c481a86`
+- [x] **10.2 Botão ❤️ no Perfil** ✅ (04/11/2026) — `useAuth` no Perfil; `favoritado` via `GET /meus-favoritos` + `Number(atleta_id)`; `alternarFavorito` (POST/DELETE, corrige estado em 409/404); botão só com `ehOlheiro`; CSS `.botao-favorito` (+ `.ativo` vermelho). Aluno digitou 3 erros (`atleta_Id` maiúsculo, `statisticas` sem e, `fase` em vez de `false`) → assistente corrigiu; **testado no navegador 05/11** (botão só aparece logado como Messi — antes o aluno testou sem logar). Commit `0c96185`
+- [x] **10.3 Página `/favoritos`** ✅ (05/11/2026) — rota protegida com **3 portões** (`logado && usuario === null` espera o `/auth/me` → senão `/login` → senão home); `CartaoAtleta` reusado (mesmo schema da vitrine); `remover()` por card com espelhamento em 404; estado vazio com link pra vitrine; link⭐ no `Topo` só quando `ehOlheiro`. App.jsx feito pelo assistente; Favoritos.jsx digitado pelo aluno (3 erros de código: `useState` no lugar de `useAuth` + `lista` sumido, portão `lista === null` esquecido, `list.filter`) → corrigidos; **testado no navegador 05/11** ✅
+- [x] **Fecho** ✅ (05/11/2026) — lint limpo, fluxo completo testado (Messi favorita/remove/estado vazio; joão redirecionado), docs, commit
 
 ### Lições
 
@@ -1228,3 +1228,8 @@ cd C:\Users\jonat\Desktop\ScoutBase\backend
 - **setState síncrono dentro de `useEffect`** é erro do lint (`react-hooks/set-state-in-effect`) — limpar estado no handler correspondente (ex.: `sair()`), não no topo do effect
 - `react-refresh/only-export-components` reclama quando o arquivo exporta componente + hook — padrão do React é manter `useAuth` junto do contexto; resolve com `// eslint-disable-next-line`
 - **Endpoints de favorito do backend:** POST 201, POST repetido 409, DELETE 200, DELETE sem favorito 404, atleta favoritando 403
+- **`useState` ≠ `useAuth`:** `useState(null)` devolve o par `[valor, setter]` — destrichar `{logado}` dele dá `undefined` pra tudo; e se a linha "juntar" os dois, o estado `lista` some → 9 erros `no-undef`. Hooks são linhas separadas
+- **Portão "esperando" entre logar e o `/auth/me` responder:** sem `if (logado && usuario === null) return Carregando`, um olheiro seria redirecionado pra home no instante em que `ehOlheiro` ainda é `false`
+- **`null` ≠ `[]`:** `lista === null` (carregando) precisa de portão antes de usar `lista.length` — senão TypeError lendo propriedade de null
+- **Teste sem logar não é teste:** o botão do 10.2 "não apareceu" porque o aluno testou logado como atleta/deslogado — sempre conferir QUEM está logado antes de julgar um bug
+- **Erros de comentário não quebram; erros de código quebram** — ao "deixar pra lá", separar os dois (o aluno propôs deixar; só deixamos os de comentário)

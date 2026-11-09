@@ -364,6 +364,13 @@ A lógica aqui é: **cada fase entrega algo que funciona e pode ser demonstrado*
     - [x] `EuSaida` no backend (`/auth/me` devolve `atleta_id`); limpeza de duplicata Fase 8
     - Commit: `582aace`
 
+11. ✅ Fase 10 — Favoritos do olheiro, 100% frontend (FECHADA 05/11/2026):
+    - [x] 10.1 `AuthContext` guarda `usuario` (busca `/auth/me` quando há token) e expõe `ehOlheiro`; `sair()` limpa o usuário — commit `c481a86`
+    - [x] 10.2 Botão ❤️ no `Perfil.jsx`: `favoritado` via `GET /meus-favoritos` + `Number(atleta_id)`; `alternarFavorito` (POST/DELETE, corrige estado em 409/404); botão só pra `ehOlheiro`; CSS `.botao-favorito`/`.ativo` — commit `0c96185`
+    - [x] 10.3 Página `/favoritos` (rota protegida com 3 portões, incluindo espera do `/auth/me`): grade com `CartaoAtleta` reusado, `remover()` por card, estado vazio com link pra vitrine; link⭐ no `Topo` só pra olheiro
+    - [x] Backend intocado (favoritos já existiam desde a Fase 7); testado: POST 201/409, DELETE 200/404, GET lista no formato `AtletaBuscaSaida`
+    - Commit deste fecho: ver `git log`
+
 **Endpoints que já respondem hoje:** `GET /health`, `GET /`, `POST /auth/cadastro`, `POST /auth/login`, `GET /auth/me`, `PUT /perfil/completar`, `GET /perfil/{id}`, `GET /perfil/{id}/videos`, `GET /perfil/{id}/estatisticas`, `POST /videos/upload`, `POST /estatisticas`, `GET /atletas`, `PUT /olheiro/completar`, `POST`/`DELETE /atletas/{id}/favoritar`, `GET /meus-favoritos`, `POST /mensagens`, `GET /mensagens/conversa/{id}`, `PUT /mensagens/lidas/{id}`, `GET /mensagens/nao-lidas`, `POST /responsaveis`, `GET /responsaveis/meus-vinculos`, `DELETE /responsaveis/{id}`, `POST /avaliacoes`, `GET /avaliacoes/{tipo}/{id}`, `GET /avaliacoes/minhas`, `GET /dashboard/top-atletas`, `GET /dashboard/ranking-olheiros`, `GET /dashboard/resumo`, `GET /perfil/{id}/visualizacoes` — e mídia em `/media/uploads/{arquivo}`.
 
 **Testes validados na Fase 2 (até 13/10/2026):** cadastro→login→perfil do zero (TRUNCATE CASCADE); PUT idempotente (mesmo `id` em 2 chamadas); GET público 200/404/422; upload 201 com uuid no disco; `.txt` → 400; sem token → 401; `/media/...` → 200 `video/mp4` (inclusive com 304 de cache do navegador); `/perfil/1/videos` → 200 com 2 vídeos; `/perfil/999/videos` → 404. **14/10 (estatísticas):** POST 201 com upsert (atualiza em vez de duplicar); `valor: 0` → 422; sem token → 401; lista pública 200 com filtros; `?temporada=1999` → `[]`; `/perfil/999/estatisticas` → 404.
