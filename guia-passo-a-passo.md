@@ -1233,3 +1233,22 @@ cd C:\Users\jonat\Desktop\ScoutBase\backend
 - **`null` ≠ `[]`:** `lista === null` (carregando) precisa de portão antes de usar `lista.length` — senão TypeError lendo propriedade de null
 - **Teste sem logar não é teste:** o botão do 10.2 "não apareceu" porque o aluno testou logado como atleta/deslogado — sempre conferir QUEM está logado antes de julgar um bug
 - **Erros de comentário não quebram; erros de código quebram** — ao "deixar pra lá", separar os dois (o aluno propôs deixar; só deixamos os de comentário)
+
+## Checklist da Fase 11 — Mensagens no frontend (🔄 EM ANDAMENTO — 05/11/2026)
+
+> Backend 100% pronto desde a Fase 4 (+ `GET /mensagens/conversas` do aluno, commit `476f1da` = início desta fase). **Zero endpoints novos** — frontend só consome.
+> Dado de teste: joão tem 1 conversa com Messi (usuario_id 4), 3 não lidas.
+
+### Blocos
+
+- [x] **11.1 Caixa de entrada `/mensagens`** ✅ (05/11/2026) — `Mensagens.jsx` (lista de conversas com nome/última mensagem/data/badge de não-lidas, truncate, estado vazio, portões login→erro→carregando) + `Mensagens.css` + rota e link 💬 no `Topo` (qualquer logado). Aluno digitou o JSX (2 erros: imports duplicados ao colar cabeçalho → assistente corrigiu); CSS escrito pelo assistente (2 erros próprios: `//` em CSS derrubou o build; variáveis `--superficie`/`--destaque`/`--texto-suave` inexistentes → trocadas por `--cartao`/`--verde`/`--texto-fundo`). Lint + `npm run build` OK. **Teste no navegador pendente (retomada)**
+- [ ] **11.2 Chat `/mensagens/:usuarioId`** — histórico em bolhas (minhas à direita), `PUT /lidas/{id}` ao abrir, campo de envio (`POST /mensagens`), aviso se 403 LGPD, botão voltar
+- [ ] **11.3 Botão 💬 Mensagem no Perfil** (usa `usuario_id` que o `/perfil/{id}` já devolve) **+ badge N no Topo** (`GET /mensagens/nao-lidas`)
+- [ ] **Fecho** — testar fluxo completo, lint, docs, commit
+
+### Lições
+
+- **CSS não aceita comentário `//`** — só `/* */`; um `//` derruba o `vite build` com "Invalid empty selector" (o bundler cola todos os CSS e o `//` vira seletor vazio)
+- **`*/` dentro de um comentário CSS fecha o comentário antes da hora** — o resto do texto vira CSS inválido (cuidado ao documentar a própria sintaxe de comentário)
+- **`var(--inexistente)` NÃO dá erro de build** — vira "herança vazia" e o estilo some em silêncio; sempre conferir o nome da variável no `index.css` (`--cartao`, `--borda`, `--texto-fundo`, `--vermelho`, `--verde`, `--texto`, `--fundo`)
+- **Ao inserir cabeçalho num arquivo novo, repare se os imports não ficaram duplicados** (colou o comentário no meio e os 5 imports apareceram 2x)

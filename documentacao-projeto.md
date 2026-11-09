@@ -371,6 +371,13 @@ A lógica aqui é: **cada fase entrega algo que funciona e pode ser demonstrado*
     - [x] Backend intocado (favoritos já existiam desde a Fase 7); testado: POST 201/409, DELETE 200/404, GET lista no formato `AtletaBuscaSaida`
     - Commit deste fecho: ver `git log`
 
+12. 🔄 Fase 11 — Mensagens no frontend (EM ANDAMENTO desde 05/11/2026):
+    - Início: commit do aluno `476f1da` (GET /mensagens/conversas — caixa de entrada no backend)
+    - [x] 11.1 Caixa de entrada `/mensagens` — lista de conversas (nome, última mensagem, data, badge de não-lidas), estado vazio, link 💬 no Topo (qualquer logado)
+    - [ ] 11.2 Chat `/mensagens/:usuarioId` (bolhas, envio, marcar lidas, aviso LGPD)
+    - [ ] 11.3 Botão 💬 no Perfil + badge N de não-lidas no Topo
+    - Backend intocado (Fase 4 já cobre enviar/histórico/lidas/contador)
+
 **Endpoints que já respondem hoje:** `GET /health`, `GET /`, `POST /auth/cadastro`, `POST /auth/login`, `GET /auth/me`, `PUT /perfil/completar`, `GET /perfil/{id}`, `GET /perfil/{id}/videos`, `GET /perfil/{id}/estatisticas`, `POST /videos/upload`, `POST /estatisticas`, `GET /atletas`, `PUT /olheiro/completar`, `POST`/`DELETE /atletas/{id}/favoritar`, `GET /meus-favoritos`, `POST /mensagens`, `GET /mensagens/conversa/{id}`, `PUT /mensagens/lidas/{id}`, `GET /mensagens/nao-lidas`, `POST /responsaveis`, `GET /responsaveis/meus-vinculos`, `DELETE /responsaveis/{id}`, `POST /avaliacoes`, `GET /avaliacoes/{tipo}/{id}`, `GET /avaliacoes/minhas`, `GET /dashboard/top-atletas`, `GET /dashboard/ranking-olheiros`, `GET /dashboard/resumo`, `GET /perfil/{id}/visualizacoes` — e mídia em `/media/uploads/{arquivo}`.
 
 **Testes validados na Fase 2 (até 13/10/2026):** cadastro→login→perfil do zero (TRUNCATE CASCADE); PUT idempotente (mesmo `id` em 2 chamadas); GET público 200/404/422; upload 201 com uuid no disco; `.txt` → 400; sem token → 401; `/media/...` → 200 `video/mp4` (inclusive com 304 de cache do navegador); `/perfil/1/videos` → 200 com 2 vídeos; `/perfil/999/videos` → 404. **14/10 (estatísticas):** POST 201 com upsert (atualiza em vez de duplicar); `valor: 0` → 422; sem token → 401; lista pública 200 com filtros; `?temporada=1999` → `[]`; `/perfil/999/estatisticas` → 404.

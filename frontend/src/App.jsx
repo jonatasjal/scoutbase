@@ -8,6 +8,7 @@ import Login from './pages/Login'
 import Cadastro from './pages/Cadastro'
 import MinhaConta from './pages/MinhaConta'
 import Favoritos from './pages/Favoritos'
+import Mensagens from './pages/Mensagens'
 
 // Header separado porque precisa do contexto (useAuth só funciona
 // DENTRO do AuthProvider — por isso App envolve e Header fica dentro)
@@ -20,6 +21,8 @@ function Topo() {
       <nav>
         <Link to="/">Vitrine</Link>
         <Link to="/rankings">🏆 Rankings</Link>
+        {/* Chat: qualquer logado usa (atleta E olheiro) — só aparece logado */}
+        {logado && <Link to="/mensagens">💬 Mensagens</Link>}
         {ehOlheiro && <Link to="/favoritos">⭐ Favoritos</Link>}
         {logado
           ? <>
@@ -45,6 +48,7 @@ export default function App() {
           <Route path="/cadastro" element={<Cadastro />} />
           <Route path="/minha-conta" element={<MinhaConta />} />
           <Route path="/favoritos" element={<Favoritos />} />
+          <Route path="/mensagens" element={<Mensagens />} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>

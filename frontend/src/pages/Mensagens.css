@@ -1,0 +1,87 @@
+/* =============================================================================
+   ESTILOS: CAIXA DE ENTRADA DE MENSAGENS (Fase 11.1)
+
+   O QUE FAZ: estiliza a lista de conversas da página Mensagens.jsx —
+   linhas clicáveis, última mensagem cortada com "..." e badge vermelho
+   de não-lidas.
+
+   POR QUÊ: sem estilos, a lista seria um <ul> com bolinhas e links azuis
+   (visual padrão do navegador). Aqui deixamos com cara de app de chat.
+
+   DEPENDÊNCIA: usa as variáveis CSS globais (--cartao, --borda,
+   --texto-fundo, --vermelho, --verde) definidas no index.css — se algum
+   nome mudar, ajustar lá primeiro.
+
+   ATENÇÃO: comentário de CSS só com barra-asterisco (abre e fecha a
+   chave-comentário). O " //" é de JavaScript/Python e NÃO existe em CSS
+   — esse detalhe já derrubou um build.
+   ========================================================================= */
+
+.lista-conversas {
+    /* ul padrão tem bolinha e recuo — zeramos pra controlar o visual */
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;          /* espaço entre as linhas */
+}
+
+.linha-conversa {
+    display: flex;
+    justify-content: space-between;  /* info à esquerda, data/badge à direita */
+    align-items: center;
+    gap: 1rem;
+    padding: 0.9rem 1rem;
+    background: var(--cartao);
+    border: 1px solid var(--borda);
+    border-radius: 12px;
+    text-decoration: none;           /* Link não fica azul/ sublinhado */
+    color: inherit;                  /* herda a cor do texto do corpo */
+    transition: border-color 0.15s ease;
+}
+
+.linha-conversa:hover {
+    border-color: var(--verde);      /* feedback de que é clicável (cor do projeto) */
+}
+
+.linha-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;                    /* permite o truncate de baixo funcionar */
+}
+
+.ultima-msg {
+    color: var(--texto-fundo);
+    font-size: 0.9rem;
+    white-space: nowrap;             /* não quebra a linha... */
+    overflow: hidden;                /* ...esconde o que passou do espaço... */
+    text-overflow: ellipsis;         /* ...e coloca "..." no lugar */
+}
+
+.linha-lado {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;                  /* data/badge nunca espremidos */
+}
+
+.data {
+    color: var(--texto-fundo);
+    font-size: 0.8rem;
+}
+
+/* Badge de não-lidas: bolinha vermelha com número branco */
+.badge {
+    background: var(--vermelho);
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 700;
+    min-width: 1.3rem;
+    height: 1.3rem;
+    border-radius: 999px;            /* 999px = círculo perfeito */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 0.35rem;
+}
