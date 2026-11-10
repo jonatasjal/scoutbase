@@ -1,0 +1,80 @@
+.voltar {
+    color: var(--texto-fundo);
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.voltar:hover { color: var(--texto); }
+
+/* Área das bolhas: altura fixa + rolagem interna (a conversa pode ser longa) */
+.bolhas {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    height: 55vh;              /* 55% da tela — deixa a barra de envio visível */
+    overflow-y: auto;          /* só esta área rola, a página inteira não */
+    background: var(--cartao);
+    border: 1px solid var(--borda);
+    border-radius: 12px;
+    padding: 1rem;
+    margin: 0.75rem 0;
+}
+
+.vazio {
+    color: var(--texto-fundo);
+    text-align: center;
+    margin-top: 1rem;
+}
+
+/* Bolha base: caixa arredondada com o texto e a hora dentro */
+.bolha {
+    max-width: 70%;            /* não ocupa a tela toda (texto vira nuvem) */
+    padding: 0.5rem 0.75rem;
+    border-radius: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.bolha p { margin: 0; }
+
+/* MINHA fala: fundo verde, encostada à direita */
+.bolha.minha {
+    align-self: flex-end;
+    background: var(--verde);
+    color: white;
+    border-bottom-right-radius: 4px;   /* "rabinho" apontando pra mim */
+}
+
+/* Fala DO OUTRO: fundo escuro, à esquerda */
+.bolha.outra {
+    align-self: flex-start;
+    background: var(--fundo);
+    border: 1px solid var(--borda);
+    color: var(--texto);
+    border-bottom-left-radius: 4px;    /* "rabinho" apontando pra ele */
+}
+
+/* Hora discreta dentro da bolha */
+.hora {
+    font-size: 0.65rem;
+    opacity: 0.75;
+    align-self: flex-end;
+}
+
+/* Aviso de erro / LGPD acima do campo */
+.aviso {
+    color: var(--vermelho);
+    font-size: 0.9rem;
+    margin: 0.25rem 0;
+}
+
+/* Barra de envio: campo cresce, botão fixo do lado */
+.enviar {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.enviar input {
+    flex: 1;                   /* ocupa todo o espaço que sobra */
+}

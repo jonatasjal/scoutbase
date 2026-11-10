@@ -1241,8 +1241,8 @@ cd C:\Users\jonat\Desktop\ScoutBase\backend
 
 ### Blocos
 
-- [x] **11.1 Caixa de entrada `/mensagens`** ✅ (05/11/2026) — `Mensagens.jsx` (lista de conversas com nome/última mensagem/data/badge de não-lidas, truncate, estado vazio, portões login→erro→carregando) + `Mensagens.css` + rota e link 💬 no `Topo` (qualquer logado). Aluno digitou o JSX (2 erros: imports duplicados ao colar cabeçalho → assistente corrigiu); CSS escrito pelo assistente (2 erros próprios: `//` em CSS derrubou o build; variáveis `--superficie`/`--destaque`/`--texto-suave` inexistentes → trocadas por `--cartao`/`--verde`/`--texto-fundo`). Lint + `npm run build` OK. **Teste no navegador pendente (retomada)**
-- [ ] **11.2 Chat `/mensagens/:usuarioId`** — histórico em bolhas (minhas à direita), `PUT /lidas/{id}` ao abrir, campo de envio (`POST /mensagens`), aviso se 403 LGPD, botão voltar
+- [x] **11.1 Caixa de entrada `/mensagens`** ✅ (05/11/2026) — `Mensagens.jsx` (lista de conversas com nome/última mensagem/data/badge de não-lidas, truncate, estado vazio, portões login→erro→carregando) + `Mensagens.css` + rota e link 💬 no `Topo` (qualquer logado). Aluno digitou o JSX (2 erros: imports duplicados ao colar cabeçalho → assistente corrigiu); CSS escrito pelo assistente (2 erros próprios: `//` em CSS derrubou o build; variáveis `--superficie`/`--destaque`/`--texto-suave` inexistentes → trocadas por `--cartao`/`--verde`/`--texto-fundo`). Lint + `npm run build` OK; teste no navegador ok no fluxo do 11.2 (10/11)
+- [x] **11.2 Chat `/mensagens/:usuarioId`** ✅ (10/11/2026) — `Chat.jsx` (histórico em bolhas, `PUT /lidas` ao abrir, envio com aviso LGPD no 403, auto-scroll, portões) + `Chat.css` + rota no `App.jsx`. Erros: aluno digitou `usuarioID` (2x, maiúsculo) e `remetende_id` (falta o t) → assistente corrigiu. **Bug de backend achado no teste:** `GET /conversa/{id}` dava 500 — `MensagemSaida(...)` manual não passava `consentimento_responsavel_id` (obrigatório no Pydantic sem default) → corrigido passando o valor (preserva o recibo LGPD). Testado: 500→200, lidas 3→0, POST 201, navegador ok ("tudo funcionando perfeitamente")
 - [ ] **11.3 Botão 💬 Mensagem no Perfil** (usa `usuario_id` que o `/perfil/{id}` já devolve) **+ badge N no Topo** (`GET /mensagens/nao-lidas`)
 - [ ] **Fecho** — testar fluxo completo, lint, docs, commit
 
@@ -1252,3 +1252,6 @@ cd C:\Users\jonat\Desktop\ScoutBase\backend
 - **`*/` dentro de um comentário CSS fecha o comentário antes da hora** — o resto do texto vira CSS inválido (cuidado ao documentar a própria sintaxe de comentário)
 - **`var(--inexistente)` NÃO dá erro de build** — vira "herança vazia" e o estilo some em silêncio; sempre conferir o nome da variável no `index.css` (`--cartao`, `--borda`, `--texto-fundo`, `--vermelho`, `--verde`, `--texto`, `--fundo`)
 - **Ao inserir cabeçalho num arquivo novo, repare se os imports não ficaram duplicados** (colou o comentário no meio e os 5 imports apareceram 2x)
+- **Nomes de variáveis são case-sensitive** — `usuarioID` na desestruturação e `usuarioId` no resto = `ReferenceError` (o lint pega como `no-undef`)
+- **Pydantic: `int | None` sem `= None` é CAMPO OBRIGATÓRIO** — pode ser `None`, mas tem que ser passado; esquecer em construção manual = `ValidationError` = 500 no endpoint (aconteceu no `GET /conversa` desde a Fase 4, só foi descobrir no teste real do chat)
+- **Dar `= None` no schema resolveria o 500, mas esconderia o dado** — quando o fix envolve dado real (recibo LGPD), passar o valor é o certo; default só pra campo que pode mesmo ser esquecido

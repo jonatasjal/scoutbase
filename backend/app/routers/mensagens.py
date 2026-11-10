@@ -131,6 +131,10 @@ def conversa(
             remetente_nome= nomes.get(m.remetente_id),
             conteudo= m.conteudo,
             lida= m.lida,
+            # Obrigatório no Pydantic (int | None sem default = exige o valor):
+            # sem esta linha o GET /conversa dava 500. Passamos o recibo LGPD
+            # de verdade — quando existe, ele viaja junto no histórico.
+            consentimento_responsavel_id= m.consentimento_responsavel_id,
             criado_em= m.criado_em,
         )
         for m in linhas

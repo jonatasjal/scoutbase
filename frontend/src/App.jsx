@@ -9,6 +9,7 @@ import Cadastro from './pages/Cadastro'
 import MinhaConta from './pages/MinhaConta'
 import Favoritos from './pages/Favoritos'
 import Mensagens from './pages/Mensagens'
+import Chat from './pages/Chat'
 
 // Header separado porque precisa do contexto (useAuth só funciona
 // DENTRO do AuthProvider — por isso App envolve e Header fica dentro)
@@ -49,6 +50,7 @@ export default function App() {
           <Route path="/minha-conta" element={<MinhaConta />} />
           <Route path="/favoritos" element={<Favoritos />} />
           <Route path="/mensagens" element={<Mensagens />} />
+          <Route path="/mensagens/:usuarioId" element={<Chat />} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>

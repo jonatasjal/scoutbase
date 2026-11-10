@@ -374,7 +374,7 @@ A lógica aqui é: **cada fase entrega algo que funciona e pode ser demonstrado*
 12. 🔄 Fase 11 — Mensagens no frontend (EM ANDAMENTO desde 05/11/2026):
     - Início: commit do aluno `476f1da` (GET /mensagens/conversas — caixa de entrada no backend)
     - [x] 11.1 Caixa de entrada `/mensagens` — lista de conversas (nome, última mensagem, data, badge de não-lidas), estado vazio, link 💬 no Topo (qualquer logado)
-    - [ ] 11.2 Chat `/mensagens/:usuarioId` (bolhas, envio, marcar lidas, aviso LGPD)
+    - [x] 11.2 Chat `/mensagens/:usuarioId` — bolhas (minhas à direita), marcar lidas ao abrir, envio, aviso LGPD no 403; + fix backend: `GET /conversa` dava 500 (campo obrigatório do Pydantic esquecido na construção manual)
     - [ ] 11.3 Botão 💬 no Perfil + badge N de não-lidas no Topo
     - Backend intocado (Fase 4 já cobre enviar/histórico/lidas/contador)
 
