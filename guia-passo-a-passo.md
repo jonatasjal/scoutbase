@@ -1257,3 +1257,13 @@ cd C:\Users\jonat\Desktop\ScoutBase\backend
 - **Dar `= None` no schema resolveria o 500, mas esconderia o dado** â€” quando o fix envolve dado real (recibo LGPD), passar o valor Ã© o certo; default sÃ³ pra campo que pode mesmo ser esquecido
 - **`setState` sÃ­ncrono dentro de `useEffect` viola `react-hooks/set-state-in-effect`** â€” a saÃ­da Ã© nÃ£o setar: se o estado sÃ³ Ã© exibido quando `logado`, o "zerar" acontece naturalmente (esconde da tela) e o prÃ³ximo effect busca de novo; setar dentro de `.then` (assÃ­ncrono) Ã© permitido
 - **PowerShell + curl + JSON com espaÃ§o no `-d`** quebra (o argumento Ã© cortado no espaÃ§o â†’ `Unterminated string`); soluÃ§Ã£o: gravar o JSON em arquivo e usar `--data-binary @arquivo`
+
+## Planejamento das próximas fases (definido em 12/11/2026)
+
+> Contexto: por enquanto projeto de **aprendizado**, mas sempre com **boas práticas de mercado** e preparado para virar **produto real que gera dinheiro** (pagamentos/planos ficam para depois — nem tocar agora).
+> Ordem escolhida: o que a gente **nunca fez** e que é pré-requisito para tudo (estar no ar) ? o que o **mercado mais cobra** (testes) ? valor de **produto** para o olheiro (busca).
+
+- [ ] **Fase 12 — Deploy (colocar no ar):** frontend na Vercel, backend + Postgres gerenciados (Railway/Render/Supabase). Aprende: variáveis de ambiente em produção, CORS em produção, build final, banco fora do Docker local. Pré-requisito: nem portfólio (recrutador clica), nem produto real funciona sem isso.
+- [ ] **Fase 13 — Testes automatizados (pytest):** aprendizado novo, item que mais aparece em vaga de emprego, e protege o que estará no ar.
+- [ ] **Fase 14 — Busca avançada:** busca por texto (ILIKE) + filtros combinados no backend; campo de busca com debounce no frontend. Valor de produto: o olheiro acha "zagueiro sub-17 de SP com vídeo" em segundos.
+- [ ] **Depois (quando virar dinheiro):** pagamentos/planos, notificações, admin — construir só com base estável.
