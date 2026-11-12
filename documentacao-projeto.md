@@ -371,12 +371,12 @@ A lógica aqui é: **cada fase entrega algo que funciona e pode ser demonstrado*
     - [x] Backend intocado (favoritos já existiam desde a Fase 7); testado: POST 201/409, DELETE 200/404, GET lista no formato `AtletaBuscaSaida`
     - Commit deste fecho: ver `git log`
 
-12. 🔄 Fase 11 — Mensagens no frontend (EM ANDAMENTO desde 05/11/2026):
+12. ✅ Fase 11 — Mensagens no frontend (FECHADA em 12/11/2026):
     - Início: commit do aluno `476f1da` (GET /mensagens/conversas — caixa de entrada no backend)
     - [x] 11.1 Caixa de entrada `/mensagens` — lista de conversas (nome, última mensagem, data, badge de não-lidas), estado vazio, link 💬 no Topo (qualquer logado)
     - [x] 11.2 Chat `/mensagens/:usuarioId` — bolhas (minhas à direita), marcar lidas ao abrir, envio, aviso LGPD no 403; + fix backend: `GET /conversa` dava 500 (campo obrigatório do Pydantic esquecido na construção manual)
-    - [ ] 11.3 Botão 💬 no Perfil + badge N de não-lidas no Topo
-    - Backend intocado (Fase 4 já cobre enviar/histórico/lidas/contador)
+    - [x] 11.3 Botão 💬 Conversar no Perfil (usa `usuario_id`, escondido no próprio perfil) + badge N de não-lidas no Topo (refaz a cada troca de página)
+    - Backend intocado (Fase 4 já cobre enviar/histórico/lidas/contador) — exceto o fix do 500
 
 **Endpoints que já respondem hoje:** `GET /health`, `GET /`, `POST /auth/cadastro`, `POST /auth/login`, `GET /auth/me`, `PUT /perfil/completar`, `GET /perfil/{id}`, `GET /perfil/{id}/videos`, `GET /perfil/{id}/estatisticas`, `POST /videos/upload`, `POST /estatisticas`, `GET /atletas`, `PUT /olheiro/completar`, `POST`/`DELETE /atletas/{id}/favoritar`, `GET /meus-favoritos`, `POST /mensagens`, `GET /mensagens/conversa/{id}`, `PUT /mensagens/lidas/{id}`, `GET /mensagens/nao-lidas`, `POST /responsaveis`, `GET /responsaveis/meus-vinculos`, `DELETE /responsaveis/{id}`, `POST /avaliacoes`, `GET /avaliacoes/{tipo}/{id}`, `GET /avaliacoes/minhas`, `GET /dashboard/top-atletas`, `GET /dashboard/ranking-olheiros`, `GET /dashboard/resumo`, `GET /perfil/{id}/visualizacoes` — e mídia em `/media/uploads/{arquivo}`.
 

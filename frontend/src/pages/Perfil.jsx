@@ -23,7 +23,7 @@ export default function Perfil() {
   const { atleta_id } = useParams()
 
   // Quem está olhando essa página? Isso vem do AuthContext (login)
-  const {logado, ehOlheiro} = useAuth()
+  const {logado, ehOlheiro, usuario} = useAuth()   // usuario = EU (pra não conversar comigo mesmo)
 
   const [perfil, setPerfil] = useState(null)    // null = ainda está carregando
   const [videos, setVideos] = useState([])      // nenhum vídeo ainda
@@ -111,6 +111,15 @@ export default function Perfil() {
             >
               {favoritado ? '❤️ Remover dos favoritos' : '🤍 Favoritar'}
             </button>
+          )}
+
+          {/* 💬 Conversar: qualquer logado puxa assunto com o atleta da ficha.
+              O link usa o USUARIO_ID (mensagem é entre usuários, não entre atletas)
+              e some no próprio perfil: ninguém conversa consigo mesmo. */}
+          {logado && perfil.usuario_id && perfil.usuario_id !== usuario?.id && (
+            <Link to={`/mensagens/${perfil.usuario_id}`} className="botao-conversar">
+              💬 Conversar
+            </Link>
           )}
         </div>
       </div>

@@ -60,3 +60,22 @@
   background: rgba(231, 76, 60, .15);
   color: #ff8a80;
 }
+
+/* Botão de conversar (Fase 11.3): pílula verde, mesma cara do favoritar */
+.botao-conversar {
+  display: inline-block;
+  margin-top: 12px;
+  margin-left: 8px;
+  padding: 8px 18px;
+  border-radius: 999px;
+  border: 1px solid var(--verde);
+  background: rgba(46, 204, 113, .12);
+  color: var(--verde);
+  font-size: 14px;
+  text-decoration: none;          /* Link do react-router herda sublinhado do <a> */
+  transition: all .15s ease;
+}
+.botao-conversar:hover {
+  background: var(--verde);
+  color: #fff;
+}

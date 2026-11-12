@@ -48,3 +48,14 @@ input, select {
   padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 14px;
 }
 .botao-sair:hover { color: var(--vermelho); border-color: var(--vermelho); background: none; }
+
+/*Badge vermelho de não-lidas ao lado do 💬 Mensagens (Fase 11.3)*/
+.badge-topo {
+  background: var(--vermelho);
+  color: #fff;
+  font-size: 11px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  margin-left: 4px;
+  vertical-align: middle;
+}

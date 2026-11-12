@@ -1234,7 +1234,7 @@ cd C:\Users\jonat\Desktop\ScoutBase\backend
 - **Teste sem logar não é teste:** o botão do 10.2 "não apareceu" porque o aluno testou logado como atleta/deslogado — sempre conferir QUEM está logado antes de julgar um bug
 - **Erros de comentário não quebram; erros de código quebram** — ao "deixar pra lá", separar os dois (o aluno propôs deixar; só deixamos os de comentário)
 
-## Checklist da Fase 11 — Mensagens no frontend (🔄 EM ANDAMENTO — 05/11/2026)
+## Checklist da Fase 11 — Mensagens no frontend (✅ FECHADA em 12/11/2026)
 
 > Backend 100% pronto desde a Fase 4 (+ `GET /mensagens/conversas` do aluno, commit `476f1da` = início desta fase). **Zero endpoints novos** — frontend só consome.
 > Dado de teste: joão tem 1 conversa com Messi (usuario_id 4), 3 não lidas.
@@ -1243,8 +1243,8 @@ cd C:\Users\jonat\Desktop\ScoutBase\backend
 
 - [x] **11.1 Caixa de entrada `/mensagens`** ✅ (05/11/2026) — `Mensagens.jsx` (lista de conversas com nome/última mensagem/data/badge de não-lidas, truncate, estado vazio, portões login→erro→carregando) + `Mensagens.css` + rota e link 💬 no `Topo` (qualquer logado). Aluno digitou o JSX (2 erros: imports duplicados ao colar cabeçalho → assistente corrigiu); CSS escrito pelo assistente (2 erros próprios: `//` em CSS derrubou o build; variáveis `--superficie`/`--destaque`/`--texto-suave` inexistentes → trocadas por `--cartao`/`--verde`/`--texto-fundo`). Lint + `npm run build` OK; teste no navegador ok no fluxo do 11.2 (10/11)
 - [x] **11.2 Chat `/mensagens/:usuarioId`** ✅ (10/11/2026) — `Chat.jsx` (histórico em bolhas, `PUT /lidas` ao abrir, envio com aviso LGPD no 403, auto-scroll, portões) + `Chat.css` + rota no `App.jsx`. Erros: aluno digitou `usuarioID` (2x, maiúsculo) e `remetende_id` (falta o t) → assistente corrigiu. **Bug de backend achado no teste:** `GET /conversa/{id}` dava 500 — `MensagemSaida(...)` manual não passava `consentimento_responsavel_id` (obrigatório no Pydantic sem default) → corrigido passando o valor (preserva o recibo LGPD). Testado: 500→200, lidas 3→0, POST 201, navegador ok ("tudo funcionando perfeitamente")
-- [ ] **11.3 Botão 💬 Mensagem no Perfil** (usa `usuario_id` que o `/perfil/{id}` já devolve) **+ badge N no Topo** (`GET /mensagens/nao-lidas`)
-- [ ] **Fecho** — testar fluxo completo, lint, docs, commit
+- [x] **11.3 Botão 💬 Mensagem no Perfil + badge N no Topo** ✅ (12/11/2026) — `Perfil.jsx`: link `💬 Conversar` → `/mensagens/{usuario_id}` (escondido no próprio perfil: ninguém conversa consigo mesmo) + `.botao-conversar` no `Perfil.css`. `App.jsx`: badge `.badge-topo` no link 💬 com `GET /mensagens/nao-lidas` refazido a cada troca de página (`local.pathname` nas deps → zera sozinho ao voltar do chat) + CSS no `index.css`. Erros do aluno: esqueceu de colar o bloco do botão no Perfil (assistente inseriu); 2 typos de comentário. **Lint:** `setNaoLidas(0)` síncrono no effect violou `react-hooks/set-state-in-effect` → removido (badge só renderiza logado, não precisa zerar). Testado: badge 1→0 ao ler, botão some no próprio perfil e aparece pro olheiro. curl com JSON contendo espaço via PowerShell quebra (`Unterminated string`) → usar arquivo com `--data-binary @file`
+- [x] **Fecho** ✅ (12/11/2026) — fluxo completo testado (badge, botão, chat, caixa), lint 1 erro conhecido, build OK, docs, commit
 
 ### Lições
 
@@ -1255,3 +1255,5 @@ cd C:\Users\jonat\Desktop\ScoutBase\backend
 - **Nomes de variáveis são case-sensitive** — `usuarioID` na desestruturação e `usuarioId` no resto = `ReferenceError` (o lint pega como `no-undef`)
 - **Pydantic: `int | None` sem `= None` é CAMPO OBRIGATÓRIO** — pode ser `None`, mas tem que ser passado; esquecer em construção manual = `ValidationError` = 500 no endpoint (aconteceu no `GET /conversa` desde a Fase 4, só foi descobrir no teste real do chat)
 - **Dar `= None` no schema resolveria o 500, mas esconderia o dado** — quando o fix envolve dado real (recibo LGPD), passar o valor é o certo; default só pra campo que pode mesmo ser esquecido
+- **`setState` síncrono dentro de `useEffect` viola `react-hooks/set-state-in-effect`** — a saída é não setar: se o estado só é exibido quando `logado`, o "zerar" acontece naturalmente (esconde da tela) e o próximo effect busca de novo; setar dentro de `.then` (assíncrono) é permitido
+- **PowerShell + curl + JSON com espaço no `-d`** quebra (o argumento é cortado no espaço → `Unterminated string`); solução: gravar o JSON em arquivo e usar `--data-binary @arquivo`
