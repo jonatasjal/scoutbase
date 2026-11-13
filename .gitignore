@@ -4,11 +4,12 @@ __pycache__/
 .venv/
 node_modules/
 pgdata/
+*.log
 backend/media/uploads/*
 !backend/media/uploads/.gitkeep
 
 # Arquivos pessoais/sensÃ­veis - nunca enviar ao Git
 Access Token.txt
 conversa-recuperada.md
-# Documento didático gerado - fica só na máquina do aluno
+# Documento didï¿½tico gerado - fica sï¿½ na mï¿½quina do aluno
 ScoutBase_para_leigos.docx
