@@ -29,3 +29,8 @@ PyJWT==2.10.1
 # email-validator: valida o formato do e-mail (ex: precisa de @ e domínio)
 # (dependência do Pydantic para usar EmailStr nos schemas)
 email-validator==2.2.0
+
+# python-multipart: processa upload de arquivo (multipart/form-data)
+# - o FastAPI exige para endpoints com UploadFile/File (ex: POST /videos/upload)
+# - SEM ele a API nem liga: "Form data requires python-multipart"
+python-multipart==0.0.32
