@@ -1,7 +1,7 @@
 // Perfil.jsx — a ficha completa do atleta: dados + estatísticas + vídeos
 import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'   // useParams = pegar :id da URL
-import { api } from '../api/client'
+import { api, API_BASE } from '../api/client'
 import { useAuth } from '../context/AuthContext'     // NOVIDADE: quem está olhando?
 import './Perfil.css'
 
@@ -148,8 +148,9 @@ export default function Perfil() {
       <div className="videos">
         {videos.map(v => (
           <div key={v.id} className="video-card">
-            {/* O banco guarda "/media/uploads/x.mp4"; o /api faz o Vite repassar pro backend */}
-            <video controls preload="metadata" src={`/api${v.url_ou_caminho}`} />
+            {/* Em dev API_BASE = '/api' (proxy do Vite); em produção = URL do
+                Render direto (a Vercel não tem proxy). Mesmo caminho, 2 mundos. */}
+            <video controls preload="metadata" src={`${API_BASE}${v.url_ou_caminho}`} />
             <p>{v.titulo}</p>
           </div>
         ))}

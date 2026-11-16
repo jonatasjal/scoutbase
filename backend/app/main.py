@@ -19,6 +19,36 @@ from fastapi.responses import RedirectResponse
 # Cria a instância da API; title/version aparecem em /docs (Swagger) e /redoc
 app = FastAPI(title= 'ScouteBase API', version = '0.1.0')
 
+# ==========================================================================
+# CORS — "portaria entre domínios diferentes"
+#
+# Em produção o frontend mora em scoutbase.vercel.app e a API em
+# scoutbase.onrender.com. Sem CORS, o navegador BLOQUEIA a chamada
+# (regra de segurança: site A não fala com site B sem autorização).
+#
+# - CORSMiddleware = "portaria" pronta do FastAPI que responde com o
+#   cabeçalho "pode vir" para os domínios da lista.
+# - allow_origins = quem pode falar comigo (dev local + o endereço do
+#   Vercel — vamos ajustar esse valor quando o deploy estiver pronto).
+# - allow_credentials = permite envio de credenciais (mantemos True
+#   por padrão de mercado; nosso token vai no header Authorization).
+# - allow_methods/allow_headers = libera todos os verbos (GET, POST...)
+#   e cabeçalhos (Authorization, Content-Type) — em produção real
+#   restringiríamos, em MVP liberamos tudo pra não travar em teste.
+# ==========================================================================
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins = [
+        "http://localhost:5173",          # dev: o Vite (vite na porta 5173)
+        "https://scoutbase.vercel.app",   # produção: placeholder, ajustamos no 12.5
+    ],
+    allow_credentials = True,
+    allow_methods = ["*"],
+    allow_headers = ["*"],
+)
+
 # Encaixa o bloco de rotas de autenticação (prefixo /auth) no app principal
 # Sem essa linha, as rotas do router existiriam mas ninguém conseguiria chamá-las
 # Encaixa as rotas de perfil (prefixo /perfil) no app principal

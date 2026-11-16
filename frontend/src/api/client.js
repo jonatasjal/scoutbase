@@ -2,7 +2,12 @@
 // Toda chamada à API passa por aqui. Um lugar só = fácil de
 // mudar depois (ex.: adicionar o token automaticamente)
 
-const BASE = '/api'   // o Vite repassa daqui pra :8000
+// Em dev: '/api' (o proxy do Vite repassa pra :8000 — como hoje).
+// Em produção: a Vercel NÃO tem proxy, o frontend fala direto com o
+// Render. O endereço vem da variável VITE_API_URL (criada na Vercel,
+// nunca vai pro Git). Resumo: mesma linha, dois mundos.
+const API_BASE = import.meta.env.VITE_API_URL || '/api'
+export { API_BASE }   // Perfil.jsx importa pra montar o src do vídeo
 
 // Método reutilizável: pega JSON, monta URL com parâmetros, trata erros
 export async function api(caminho, { method = 'GET', corpo = null, token = null, params = null } = {}) {
@@ -25,7 +30,7 @@ export async function api(caminho, { method = 'GET', corpo = null, token = null,
   const tokenSalvo = token ?? localStorage.getItem('token')
   if (tokenSalvo) opcoes.headers['Authorization'] = `Bearer ${tokenSalvo}`
 
-  const resp = await fetch(`${BASE}${caminho}${qs}`, opcoes)
+  const resp = await fetch(`${API_BASE}${caminho}${qs}`, opcoes)
 
   // 204 = sem conteúdo (ex.: DELETE ok)
   if (resp.status === 204) return null
