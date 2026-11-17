@@ -15,6 +15,7 @@ from app.database import get_db
 from app.deps import get_current_user
 from app.models import ResponsavelLegal, TipoUsuario, Atleta
 from app.schemas import ResponsavelDados, ResponsavelSaida
+from app.routers.atletas import calcular_idade   # mesma função da vitrine (reuso!)
 
 router = APIRouter(prefix = '/responsaveis', tags = ['responsaveis'])
 
@@ -40,7 +41,16 @@ def criar_vinculo(
     if atleta is None:
         raise HTTPException(status_code = 404, detail = 'Atleta não encontrado')
 
-    # 2) Já não tem vínculo ATIVO com esse atleta? (retorna 409 se já tiver)
+    # 2) É MENOR de idade? Regra da LGPD: vínculo de responsável só faz
+    #    sentido pra quem ainda é menor — adulto se vira sozinho.
+    #    Idade é CALCULADA na hora (não guardamos "idade" no banco, ele envelhece)
+    if calcular_idade(atleta.data_nascimento) >= 18:
+        raise HTTPException(
+            status_code = 400,
+            detail = 'Vínculo permitido apenas para menores de idade',
+        )
+
+    # 3) Já não tem vínculo ATIVO com esse atleta? (retorna 409 se já tiver)
     # "inativo" não barra, pois a mãe pode se vincular de novo depois de desvincular
     existente = (
         db.query(ResponsavelLegal)
@@ -54,7 +64,7 @@ def criar_vinculo(
     if existente is not None:
         raise HTTPException(status_code = 409, detail = 'Vínculo já existe')
 
-    # 3) Cria e salva
+    # 4) Cria e salva
     vinculo = ResponsavelLegal(
         usuario_id = usuario.id,
         atleta_id = dados.atleta_id,

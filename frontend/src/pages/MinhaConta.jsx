@@ -22,6 +22,8 @@ export default function MinhaConta() {
   const [arquivo, setArquivo] = useState(null)
   const [tituloVideo, setTituloVideo] = useState('')
   const [fichaOlheiro, setFichaOlheiro] = useState({ organizacao: '', cargo: '' })
+  const [vinculos, setVinculos] = useState(null)              // null = carregando · [] = nenhum
+  const [novoVinculo, setNovoVinculo] = useState({ atleta_id: '', parentesco: '' })
 
   // 1) quem sou eu
   useEffect(() => {
@@ -64,6 +66,15 @@ export default function MinhaConta() {
     api('/olheiro')
       .then(f => setFichaOlheiro({ organizacao: f.organizacao ?? '', cargo: f.cargo ?? '' }))
       .catch(() => {})                            // sem ficha ainda = form vazio, sem erro na tela
+  }, [eu?.tipo_usuario])
+
+  // 4) responsável: busca meus vínculos ativos
+  // (o "caderno" de menores que eu represento — null = ainda carregando)
+  useEffect(() => {
+    if (eu?.tipo_usuario !== 'responsavel') return   // só quem é responsável busca
+    api('/responsaveis/meus-vinculos')
+      .then(setVinculos)
+      .catch(e => setErro(e.detail))
   }, [eu?.tipo_usuario])
 
   // DEPOIS de todos os hooks (regra do React: hook nunca pode ficar
@@ -123,6 +134,41 @@ export default function MinhaConta() {
       setErro(e.detail)                              // inline, sem derrubar a página
     } finally {
       setSalvando(false)
+    }
+  }
+
+  // POST /responsaveis — cria vínculo com um menor
+  // Erros possíveis: 404 (id não existe) · 409 (já vinculado) · 400 (não é menor)
+  async function vincular(e) {
+    e.preventDefault()
+    setErro(null); setOk(null); setSalvando(true)
+    try {
+      const criado = await api('/responsaveis', {
+        method: 'POST',
+        corpo: {
+          atleta_id: Number(novoVinculo.atleta_id),   // input devolve string → vira número
+          parentesco: novoVinculo.parentesco,
+        },
+      })
+      setVinculos([...(vinculos ?? []), criado])            // espelho: aparece sem refazer busca
+      setNovoVinculo({ atleta_id: '', parentesco: '' })     // limpa o formulário
+      setOk('Vínculo criado! 🎉')
+    } catch (e) {
+      setErro(e.detail)
+    } finally {
+      setSalvando(false)
+    }
+  }
+
+  // DELETE /responsaveis/{id} — desativa (soft delete: a linha fica p/ auditoria)
+  async function desvincular(vinculo) {
+    setErro(null); setOk(null)
+    try {
+      await api(`/responsaveis/${vinculo.id}`, { method: 'DELETE' })
+      setVinculos(vinculos.filter(v => v.id !== vinculo.id))   // espelho: tira da lista
+      setOk('Vínculo removido')
+    } catch (e) {
+      setErro(e.detail)
     }
   }
 
@@ -238,6 +284,51 @@ export default function MinhaConta() {
             </label>
             <button type="submit" className="largura-toda" disabled={salvando}>
               {salvando ? 'Salvando…' : 'Salvar alterações'}
+            </button>
+          </form>
+        </section>
+      )}
+
+      {/* ---- Área do responsável: vínculos com menores (LGPD) ---- */}
+      {eu.tipo_usuario === 'responsavel' && (
+        <section className="cartao-secao">
+          <h2>👨‍👩‍👧 Meus vínculos</h2>
+          <p>Menores que você representa. É esse vínculo que libera mensagens de olheiros (LGPD).</p>
+
+          {/* null = ainda carregando · [] = nenhum vínculo ainda */}
+          {vinculos === null && <p>Carregando…</p>}
+          {vinculos?.length === 0 && <p>Nenhum vínculo ainda — use o formulário abaixo.</p>}
+
+          {vinculos?.map(v => (
+            <div key={v.id} className="linha-vinculo">
+              <span>
+                👤 Atleta <Link to={`/perfil/${v.atleta_id}`}>#{v.atleta_id}</Link>
+                {' · '}{v.parentesco}
+              </span>
+              <button type="button" onClick={() => desvincular(v)}>Desvincular</button>
+            </div>
+          ))}
+
+          <h3>Vincular a um atleta</h3>
+          <p>Dica: abra o perfil do atleta — o id está no endereço (/perfil/1).</p>
+          <form onSubmit={vincular} className="grade-campos">
+            <label>ID do atleta
+              <input
+                type="number" min="1" required
+                value={novoVinculo.atleta_id}
+                onChange={e => setNovoVinculo({ ...novoVinculo, atleta_id: e.target.value })}
+              />
+            </label>
+            <label>Parentesco
+              <input
+                required
+                placeholder="mãe, pai, tutor…"
+                value={novoVinculo.parentesco}
+                onChange={e => setNovoVinculo({ ...novoVinculo, parentesco: e.target.value })}
+              />
+            </label>
+            <button type="submit" className="largura-toda" disabled={salvando}>
+              {salvando ? 'Vinculando…' : 'Criar vínculo'}
             </button>
           </form>
         </section>

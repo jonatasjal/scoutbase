@@ -24,3 +24,15 @@
   padding: 8px 0; border-bottom: 1px solid var(--borda); font-size: 14px;
 }
 .lista-recentes span, .lista-videos span { color: var(--texto-fundo); float: right; }
+
+/* Linha de vínculo responsável × atleta (área do responsável) */
+.linha-vinculo {
+  display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  padding: 10px 0; border-bottom: 1px solid var(--borda); font-size: 14px;
+}
+.linha-vinculo a { color: var(--verde); }
+.linha-vinculo button {
+  background: none; border: 1px solid var(--borda); border-radius: 6px;
+  padding: 6px 12px; font-size: 13px; cursor: pointer; color: var(--texto);
+}
+.linha-vinculo button:hover { border-color: var(--vermelho); color: var(--vermelho); }
