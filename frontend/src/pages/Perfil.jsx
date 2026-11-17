@@ -33,6 +33,11 @@ export default function Perfil() {
   // true = esse atleta já está nos favoritos do olheiro que está vendo
   const [favoritado, setFavoritado] = useState(false)
 
+  // Erro da AÇÃO de favoritar: fica INLINE embaixo do botão (a página
+  // inteira não pode sumir por causa de um clique — diferente do erro
+  // de CARREGAMENTO do topo, que sim derruba a página)
+  const [erroFavorito, setErroFavorito] = useState(null)
+
   // Aqui se faz  busca: fica + videos + estatisticas juntos e só renderiza quando as 3 chhegarem
   // ou seja, quando a página é aberta, ela precisa buscar tais informações e o código só continua se as 3 forem concluídas com sucesso
   useEffect(() => {     // useEffect executa uma ação quando o componente é carregado ou dependência muda
@@ -59,6 +64,7 @@ export default function Perfil() {
   // Essa função permite adicionar ou remover um atleta da lista de favoritos, dependendo da situação atual
   // clica no coração: favorita (POST) ou defavorita (DELETE) no backend
   async function alternarFavorito() {
+    setErroFavorito(null)   // limpa o aviso de uma tentativa anterior
     try {
       if (favoritado) {
         await api(`/atletas/${atleta_id}/favoritar`, { method: 'DELETE' })  // faz requisição ao backend, espera resposta e apontamos o que deve ser feito
@@ -71,7 +77,7 @@ export default function Perfil() {
       // 409/404 = a tela estava defasada do banco, então corrig o estado com informaões atuais
       if (e.status === 409) setFavoritado(true)         // já estava favoritado
       else if (e.status === 404) setFavoritado(false)    // não estava
-      else setErro(e.detail)                            // erro de verdade (403, etc)
+      else setErroFavorito(e.detail)                    // erro de verdade (403 etc) — inline
     }
   }
 
@@ -111,6 +117,16 @@ export default function Perfil() {
             >
               {favoritado ? '❤️ Remover dos favoritos' : '🤍 Favoritar'}
             </button>
+          )}
+
+          {/* Erro do clique em favoritar: aviso inline (não derruba a página).
+              403 = olheiro sem ficha → em vez de citar endpoint, damos o caminho */}
+          {erroFavorito && (
+            <p className="erro">
+              {erroFavorito.includes('Complete seu perfil')
+                ? <>Complete seu perfil na <Link to="/minha-conta">Minha Conta</Link> antes de favoritar.</>
+                : erroFavorito}
+            </p>
           )}
 
           {/* 💬 Conversar: qualquer logado puxa assunto com o atleta da ficha.

@@ -50,7 +50,7 @@ def obter_olheiro_logado(
     if olheiro is None:
         raise HTTPException(
             status_code = status.HTTP_403_FORBIDDEN,
-            detail = 'Complete seu perfil em PUT /olheiro/completar antes de favoritas'
+            detail = 'Complete seu perfil em PUT /olheiro/completar antes de favoritar'
         )
     return olheiro
 
@@ -90,6 +90,15 @@ def completar_olheiro(
 
     db.commit()
     db.refresh(olheiro)     # recarrega a linha com o id gerado pelo banco
+    return olheiro
+
+# ---------------------------------------------------------------------------
+# GET /olheiro — devolve a ficha do olheiro logado (o form usa pra pré-preencher)
+# ---------------------------------------------------------------------------
+@router.get('/olheiro', response_model = OlheiroSaida)
+def ver_ficha_olheiro(olheiro: Olheiro = Depends(obter_olheiro_logado)):
+    # obter_olheiro_logado já faz as 3 checagens: logado? tipo olheiro? tem ficha?
+    # Sem ficha = 403 com a dica do PUT (o frontend trata como "form vazio")
     return olheiro
 
 # ---------------------------------------------------------------------------

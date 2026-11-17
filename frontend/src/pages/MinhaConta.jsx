@@ -21,6 +21,7 @@ export default function MinhaConta() {
   const [enviando, setEnviando] = useState(false)  // loading do "Enviar vídeo"
   const [arquivo, setArquivo] = useState(null)
   const [tituloVideo, setTituloVideo] = useState('')
+  const [fichaOlheiro, setFichaOlheiro] = useState({ organizacao: '', cargo: '' })
 
   // 1) quem sou eu
   useEffect(() => {
@@ -54,6 +55,16 @@ export default function MinhaConta() {
       })
       .catch(e => setErro(e.detail))
   }, [eu?.atleta_id])
+
+  // 3) olheiro: busca a ficha pra pré-preencher o form.
+  // Se ainda não tem ficha, o backend responde 403 — tratamos como
+  // "form vazio" (é o estado normal de olheiro recém-cadastrado)
+  useEffect(() => {
+    if (eu?.tipo_usuario !== 'olheiro') return   // só quem é olheiro busca
+    api('/olheiro')
+      .then(f => setFichaOlheiro({ organizacao: f.organizacao ?? '', cargo: f.cargo ?? '' }))
+      .catch(() => {})                            // sem ficha ainda = form vazio, sem erro na tela
+  }, [eu?.tipo_usuario])
 
   // DEPOIS de todos os hooks (regra do React: hook nunca pode ficar
   // atrás de return condicional), a guarda da rota:
@@ -99,6 +110,20 @@ export default function MinhaConta() {
       setMeusVideos(await api(`/perfil/${eu.atleta_id}/videos`))
     } catch (e) { setErro(e.detail) }
     finally { setEnviando(false) }
+  }
+
+  // PUT /olheiro/completar: cria OU atualiza a ficha do olheiro (upsert)
+  async function salvarPerfilOlheiro(e) {
+    e.preventDefault()
+    setErro(null); setOk(null); setSalvando(true)   // botão vira "Salvando…"
+    try {
+      await api('/olheiro/completar', { method: 'PUT', corpo: fichaOlheiro })
+      setOk('Perfil salvo! 🎉')
+    } catch (e) {
+      setErro(e.detail)                              // inline, sem derrubar a página
+    } finally {
+      setSalvando(false)
+    }
   }
 
   function campo(nome, tipo = 'text') {
@@ -193,11 +218,28 @@ export default function MinhaConta() {
         </>
       )}
 
-      {/* ---- Área do olheiro ---- */}
+      {/* ---- Área do olheiro: completar ficha (obrigatória pra favoritar) ---- */}
       {eu.tipo_usuario === 'olheiro' && (
         <section className="cartao-secao">
-          <h2>🔭 Área do olheiro</h2>
-          <p>Favoritos e mensagens ficam nas próximas telas. Por ora, explore a <Link to="/">vitrine</Link>.</p>
+          <h2>Seu perfil de olheiro</h2>
+          <p>Preencha para poder favoritar atletas na vitrine.</p>
+          <form onSubmit={salvarPerfilOlheiro} className="grade-campos">
+            <label>Organização
+              <input
+                value={fichaOlheiro.organizacao}
+                onChange={e => setFichaOlheiro({ ...fichaOlheiro, organizacao: e.target.value })}
+              />
+            </label>
+            <label>Cargo
+              <input
+                value={fichaOlheiro.cargo}
+                onChange={e => setFichaOlheiro({ ...fichaOlheiro, cargo: e.target.value })}
+              />
+            </label>
+            <button type="submit" className="largura-toda" disabled={salvando}>
+              {salvando ? 'Salvando…' : 'Salvar alterações'}
+            </button>
+          </form>
         </section>
       )}
     </div>

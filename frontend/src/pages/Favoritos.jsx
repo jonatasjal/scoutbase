@@ -36,7 +36,16 @@ export default function Favoritos() {
 
     // 3º - logado mas NÃO é olheiro, aí é mandado para a home
     if (!ehOlheiro) return <Navigate to='/' replace />
-    if (erro) return <div className='pagina'><p className="erro">Erro: {erro}</p></div>
+    if (erro) return (
+        <div className='pagina'>
+            <p className="erro">
+                {/* 403 = olheiro sem ficha → em vez de citar endpoint, damos o caminho */}
+                {erro.includes('Complete seu perfil')
+                    ? <>Complete seu perfil na <Link to="/minha-conta">Minha Conta</Link> antes de favoritar.</>
+                    : `Erro: ${erro}`}
+            </p>
+        </div>
+    )
     if (lista === null) return <div className='pagina'><p>Carregando…</p></div>
 
     //Remmove um favorito: apaga no banco e tira o card da tela (espelho do favoritar do perfil)
