@@ -30,7 +30,19 @@ export async function api(caminho, { method = 'GET', corpo = null, token = null,
   const tokenSalvo = token ?? localStorage.getItem('token')
   if (tokenSalvo) opcoes.headers['Authorization'] = `Bearer ${tokenSalvo}`
 
-  const resp = await fetch(`${API_BASE}${caminho}${qs}`, opcoes)
+  // fetch pode FALHAR ANTES de existir resposta (rede caída, servidor
+  // dormindo/sem resposta). Sem este try/catch, o erro chegaria "pelado"
+  // (sem .detail) e as telas mostrariam "Erro: undefined" — quase nada.
+  let resp
+  try {
+    resp = await fetch(`${API_BASE}${caminho}${qs}`, opcoes)
+  } catch {
+    // status 0 = "nunca chegou ao servidor" (é o caso do Render acordando)
+    throw {
+      status: 0,
+      detail: 'Sem resposta do servidor — ele pode estar acordando (~50s). Tente de novo.',
+    }
+  }
 
   // 204 = sem conteúdo (ex.: DELETE ok)
   if (resp.status === 204) return null

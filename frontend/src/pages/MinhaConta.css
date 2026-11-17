@@ -14,6 +14,10 @@
 .largura-toda { grid-column: 1 / -1; }   /* ocupa a linha inteira */
 
 .sucesso { color: var(--verde); }
+.erro { color: var(--vermelho); margin: 0; font-size: 14px; }
+
+/* Enquanto processa: botão apagado + cursor de espera (igual ao Login) */
+.grade-campos button:disabled { opacity: 0.6; cursor: wait; }
 
 .lista-recentes, .lista-videos { list-style: none; padding: 0; margin: 0; }
 .lista-recentes li, .lista-videos li {

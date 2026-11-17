@@ -16,6 +16,8 @@ export default function MinhaConta() {
   })
   const [erro, setErro] = useState(null)
   const [ok, setOk] = useState(null)        // mensagens de sucesso
+  const [salvando, setSalvando] = useState(false)  // loading do "Salvar ficha"
+  const [enviando, setEnviando] = useState(false)  // loading do "Enviar vídeo"
   const [arquivo, setArquivo] = useState(null)
   const [tituloVideo, setTituloVideo] = useState('')
 
@@ -56,17 +58,27 @@ export default function MinhaConta() {
   // atrás de return condicional), a guarda da rota:
   if (!token) return <Navigate to="/login" replace />
 
-  if (erro) return <div className="pagina"><p className="erro">Erro: {erro}</p></div>
+  // Só um erro de CARREGAMENTO inicial derruba a página (sem `eu` não dá
+  // pra renderizar nada). Erros de AÇÃO (salvar/enviar) são mostrados
+  // embaixo do título — assim o formulário NÃO some da tela do usuário.
+  if (!eu && erro) return <div className="pagina"><p className="erro">Erro: {erro}</p></div>
   if (!eu) return <div className="pagina"><p>Carregando…</p></div>
 
   // PUT /perfil/completar: cria OU atualiza (o backend decide)
   async function salvarFicha(e) {
     e.preventDefault()
-    setErro(null); setOk(null)
+    setErro(null); setOk(null); setSalvando(true)   // botão vira "Salvando…"
     try {
       await api('/perfil/completar', { method: 'PUT', corpo: ficha })
       setOk('Ficha salva! 🎉')
-    } catch (e) { setErro(e.detail) }
+      // Primeira vez criando a ficha: /auth/me ainda não tinha atleta_id.
+      // Recarrega pra "quem me viu" e vídeos aparecerem sem relogar.
+      if (!eu.atleta_id) setEu(await api('/auth/me'))
+    } catch (e) {
+      setErro(e.detail)                              // fica inline, sem sumir com a página
+    } finally {
+      setSalvando(false)                             // roda sempre (sucesso ou erro)
+    }
   }
 
   // POST /videos/upload — multipart (arquivo + título)
@@ -74,16 +86,18 @@ export default function MinhaConta() {
     e.preventDefault()
     setErro(null); setOk(null)
     if (!arquivo) { setErro('Escolha um arquivo de vídeo'); return }
-    const form = new FormData()             // "envelope" multipart
-    form.append('arquivo', arquivo)          // chave = mesmo nome do backend
-    form.append('titulo', tituloVideo)
+    setEnviando(true)                                // botão vira "Enviando…"
     try {
+      const form = new FormData()             // "envelope" multipart
+      form.append('arquivo', arquivo)          // chave = mesmo nome do backend
+      form.append('titulo', tituloVideo)
       await api('/videos/upload', { method: 'POST', corpo: form })
       setOk('Vídeo enviado! 🎉')
       setArquivo(null); setTituloVideo('')
       // recarrega a lista
       setMeusVideos(await api(`/perfil/${eu.atleta_id}/videos`))
     } catch (e) { setErro(e.detail) }
+    finally { setEnviando(false) }
   }
 
   function campo(nome, tipo = 'text') {
@@ -100,6 +114,7 @@ export default function MinhaConta() {
     <div className="pagina">
       <h1>Minha conta</h1>
       {ok && <p className="sucesso">{ok}</p>}
+      {erro && <p className="erro">{erro}</p>}
 
       {/* ---- Dados da conta ---- */}
       <section className="cartao-secao">
@@ -126,7 +141,9 @@ export default function MinhaConta() {
               <label>Estado (UF) {campo('estado')}</label>
               <label>Clube atual {campo('clube_atual')}</label>
               <label className="largura-toda">Bio {campo('bio')}</label>
-              <button type="submit" className="largura-toda">Salvar ficha</button>
+              <button type="submit" className="largura-toda" disabled={salvando}>
+                {salvando ? 'Salvando…' : 'Salvar ficha'}
+              </button>
             </form>
           </section>
 
@@ -160,7 +177,9 @@ export default function MinhaConta() {
               <label>Arquivo
                 <input type="file" accept=".mp4,.mov,.webm" onChange={e => setArquivo(e.target.files[0])} required />
               </label>
-              <button type="submit" className="largura-toda">Enviar vídeo</button>
+              <button type="submit" className="largura-toda" disabled={enviando}>
+                {enviando ? 'Enviando…' : 'Enviar vídeo'}
+              </button>
             </form>
             <h3>Meus vídeos ({meusVideos.length})</h3>
             <ul className="lista-videos">
