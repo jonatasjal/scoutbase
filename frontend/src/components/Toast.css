@@ -1,0 +1,21 @@
+/* Toast: canto superior direito, desliza pra dentro e some aos 3s */
+.toast {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 1000;                 /* acima do cabeçalho e demais camadas */
+  background: var(--verde);      /* verde = deu certo (mesmo tom do tema) */
+  color: #fff;
+  padding: 12px 18px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgb(0 0 0 / 0.4);
+  animation: toast-entra 0.25s ease-out;
+}
+
+/* Animação de entrada: chega de cima com deslize suave */
+@keyframes toast-entra {
+  from { transform: translateY(-16px); opacity: 0; }
+  to   { transform: translateY(0);     opacity: 1; }
+}

@@ -13,7 +13,7 @@
 .grade-campos label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--texto-fundo); }
 .largura-toda { grid-column: 1 / -1; }   /* ocupa a linha inteira */
 
-.sucesso { color: var(--verde); }
+/* Erro fica embaixo do título (o sucesso virou toast — components/Toast) */
 .erro { color: var(--vermelho); margin: 0; font-size: 14px; }
 
 /* Enquanto processa: botão apagado + cursor de espera (igual ao Login) */

@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { Link, Navigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { api } from '../api/client'
+import Toast from '../components/Toast'
 import './MinhaConta.css'
 
 export default function MinhaConta() {
@@ -113,7 +114,8 @@ export default function MinhaConta() {
   return (
     <div className="pagina">
       <h1>Minha conta</h1>
-      {ok && <p className="sucesso">{ok}</p>}
+      {/* Sucesso = toast passageiro (some em 3s); erro = fica embaixo */}
+      <Toast mensagem={ok} aoSumir={() => setOk(null)} />
       {erro && <p className="erro">{erro}</p>}
 
       {/* ---- Dados da conta ---- */}
@@ -142,7 +144,7 @@ export default function MinhaConta() {
               <label>Clube atual {campo('clube_atual')}</label>
               <label className="largura-toda">Bio {campo('bio')}</label>
               <button type="submit" className="largura-toda" disabled={salvando}>
-                {salvando ? 'Salvando…' : 'Salvar ficha'}
+                {salvando ? 'Salvando…' : 'Salvar alterações'}
               </button>
             </form>
           </section>
