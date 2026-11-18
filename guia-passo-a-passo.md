@@ -1285,12 +1285,35 @@ cd C:\Users\jonat\Desktop\ScoutBase\backend
 - **Teste no ar é obrigatório** — 4 bugs só apareceram na produção real (form faltando, erro sem mensagem amigável)
 - **Arquivo de texto pode ter codificação mista** (UTF-8 + cp1252 de edição antiga) — antes de editar, validar com `UTF8Encoding($false, $true)`; editar às cegas regrava os bytes quebrados e perde texto
 
+## Fase 13 — Testes automatizados (pytest) — ✅ FECHADA em 18/11/2026
+
+> **Objetivo:** suíte de testes automatizados que protege o que está no ar — item que mais aparece em vaga de emprego.
+> **Arquitetura:** pytest + `TestClient` do FastAPI + **banco SQLite em memória** (`StaticPool`) — cada teste nasce com o banco zerado; roda em ~19s **sem Docker, sem rede, sem tocar o banco real**.
+> **Comando:** `.\.venv\Scripts\python.exe -m pytest` (de dentro de `backend/`) — **21 testes, 4 arquivos**.
+> **Decisão do aluno:** digitar tudo ele mesmo (blocos entregues no chat), com explicação linha a linha.
+
+### Blocos
+
+- [x] **13.1 Setup** ✅ (18/11/2026) — `requirements-dev.txt` (pytest 8.3.5 + httpx 0.28.1, **só dev** — Render instala só o `requirements.txt`), `pytest.ini` (aponta pra pasta `tests`), `tests/conftest.py` (fixture `client`: `create_all` antes / `drop_all` depois de CADA teste + `app.dependency_overrides[get_db]` redireciona pro SQLite em memória), `tests/test_smoke.py` (`GET /health`)
+- [x] **13.2 Auth** ✅ (18/11/2026) — `tests/test_auth.py`, 8 testes: cadastro 201 / 409 e-mail repetido, login 200 com token / 401 senha errada, `/auth/me` 200 com token / 401 "Token ausente" / 401 "Token inválido ou expirado"
+- [x] **13.3 Vitrine** ✅ (18/11/2026) — `tests/test_atletas.py`, 6 testes: lista vazia, lista com **idade calculada** e **sem vazar e-mail/senha**, filtro posicao (`ilike`), filtro estado minúsculo (`.upper()` na entrada), perfil público sem vazamento, perfil inexistente 404. Helper `criar_atleta` (conta → login → ficha) reusado no bloco seguinte
+- [x] **13.4 Regras de negócio + bug real** ✅ (18/11/2026) — `tests/test_regras.py`, 6 testes: LGPD (vínculo com menor 201 / adulto 400), duplicado 409 (vínculo e favorito), atleta tentando favoritar 403, **token forjado em rota opcional 401** — esse último **pegou bug real**: `deps.py` tinha `get_current_user_optional` **duplicada** e a cópia que valia usava `header=` em vez de `headers=` → dava `TypeError`/500 em vez de 401; cópia errada apagada
+- [x] **13.5 Fecho** ✅ (18/11/2026) — checklist neste guia, seção 13 (estratégia de testes) + item 14 na documentação, AGENTS.md, commit
+
+### Lições
+
+- **Teste é espelho do código** — copie as strings de erro **exatamente** (acentos e tudo): se a API mudar de mensagem, o teste acusa na hora
+- **"Colar bloco e rodar" exige que o arquivo exista** — pytest coletou só 9 itens enquanto `test_atletas.py` não estava criado; olhar o `collected N items` evita achar que o teste "não funciona"
+- **Verde rápido demais às vezes é suspeito** — o caso ideal foi **vermelho**: o teste 13.4.6 falhou com `TypeError` e revelou bug escondido que o uso manual nunca tinha pego
+- **Fixture `create_all`/`drop_all` por teste** = cada teste começa com banco zerado e não depende da ordem em que roda
+- **Rota pública ≠ token qualquer vale** — `get_current_user` (exige) vs `get_current_user_optional` (aceita visitante): mas **token inválido tem que dar 401**, nunca 500 nem 200 silencioso
+
 ## Planejamento das próximas fases (definido em 12/11/2026)
 
 > Contexto: por enquanto projeto de **aprendizado**, mas sempre com **boas práticas de mercado** e preparado para virar **produto real que gera dinheiro** (pagamentos/planos ficam para depois — nem tocar agora).
 > Ordem escolhida: o que a gente **nunca fez** e que é pré-requisito para tudo (estar no ar) → o que o **mercado mais cobra** (testes) → valor de **produto** para o olheiro (busca).
 
 - [x] **Fase 12 — Deploy (colocar no ar) ✅ FECHADA em 18/11/2026:** frontend na Vercel, backend na Render, Postgres no Supabase. Aprendido: variáveis de ambiente em produção, CORS em produção, build final, banco fora do Docker local. Pronto: nem portfólio (recrutador clica), nem produto real funcionava sem isso.
-- [ ] **Fase 13 — Testes automatizados (pytest):** aprendizado novo, item que mais aparece em vaga de emprego, e protege o que estará no ar.
+- [x] **Fase 13 — Testes automatizados (pytest) ✅ FECHADA em 18/11/2026:** 21 testes (auth, vitrine, regras de negócio) em SQLite em memória, rodando em ~19s sem Docker; suíte pegou e corrigiu bug real no `deps.py`. Aprendido: pytest + TestClient, fixture de banco, teste vermelho como desfecho. Protege o que está no ar e é o que o mercado mais cobra.
 - [ ] **Fase 14 — Busca avançada:** busca por texto (ILIKE) + filtros combinados no backend; campo de busca com debounce no frontend. Valor de produto: o olheiro acha "zagueiro sub-17 de SP com vídeo" em segundos.
 - [ ] **Depois (quando virar dinheiro):** pagamentos/planos, notificações, admin — construir só com base estável.

@@ -1,0 +1,8 @@
+# Dependencias SO de desenvolvimento/teste — a Render NAO instala este arquivo
+# (ela so olha o requirements.txt; teste nao vai para producao)
+
+# pytest: o framework — procura funcoes test_*, roda cada uma e falha se o assert errar
+pytest==8.3.5
+
+# httpx: cliente HTTP que o TestClient do FastAPI usa por baixo para "fazer pedidos"
+httpx==0.28.1

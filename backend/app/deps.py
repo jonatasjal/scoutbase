@@ -94,34 +94,3 @@ def get_current_user_optional(
     #    foi apagada depois de emitido o token — tratamos como anônimo)
     usuario = db.query(Usuario).filter(Usuario.id == int(payload['sub'])).first()
     return usuario
-
-
-# ---------------------------------------------------------------------------
-# get_current_user_optional — o "convite aberto" (Fase 8)
-# ---------------------------------------------------------------------------
-# Comparação com get_current_user:
-#   get_current_user         → SEM token = 401 (rota protegida)
-#   get_current_user_optional→ SEM token = None (ok! rota pública que SÓ
-#                              se beneficia de um token: registra QUEM visitou
-def get_current_user_optional(
-        credenciais: HTTPAuthorizationCredentials | None = Depends(bearer),
-        db: Session = Depends(get_db)
-) -> Usuario | None:
-    # 1) Sem token = anônimo legítimo, NÃO é erro -> devolve None
-    if credenciais is None:
-        return None
-
-    # 2) Mandou token mas está inválido/expirado -> 401 mesmo
-    # (quem acha que está autentiado meece saber que não está, o contrário seria ruim por
-    # "esconder" possíveis bugs de token do cliente)
-    payload = verificar_token(credenciais.credentials)
-    if payload is None:
-        raise HTTPException(
-            status_code = status.HTTP_401_UNAUTHORIZED,
-            detail = 'Token inválido ou expirado',
-            header = {'WWW-Authenticate': 'Bearer'}
-        )
-
-    # 3) Token ok -> carrega o usuário real(pode ser None se a conta foi apagada depois de emitido o token - aí tratamos como aônimo)
-    usuario = db.query(Usuario).filter(Usuario.id == int(payload['sub'])).first()
-    return usuario
