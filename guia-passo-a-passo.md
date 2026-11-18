@@ -1258,12 +1258,39 @@ cd C:\Users\jonat\Desktop\ScoutBase\backend
 - **`setState` síncrono dentro de `useEffect` viola `react-hooks/set-state-in-effect`** — a saída é não setar: se o estado só é exibido quando `logado`, o "zerar" acontece naturalmente (esconde da tela) e o próximo effect busca de novo; setar dentro de `.then` (assíncrono) é permitido
 - **PowerShell + curl + JSON com espaço no `-d`** quebra (o argumento é cortado no espaço → `Unterminated string`); solução: gravar o JSON em arquivo e usar `--data-binary @arquivo`
 
-## Planejamento das pr�ximas fases (definido em 12/11/2026)
+## Checklist da Fase 12 — Deploy (✅ FECHADA em 18/11/2026)
 
-> Contexto: por enquanto projeto de **aprendizado**, mas sempre com **boas pr�ticas de mercado** e preparado para virar **produto real que gera dinheiro** (pagamentos/planos ficam para depois � nem tocar agora).
-> Ordem escolhida: o que a gente **nunca fez** e que � pr�-requisito para tudo (estar no ar) ? o que o **mercado mais cobra** (testes) ? valor de **produto** para o olheiro (busca).
+> Produto no ar: **frontend na Vercel**, **backend na Render**, **Postgres no Supabase** (banco gerenciado). Deploy = `git push` — as duas plataformas publicam sozinhas.
+> URLs: frontend `https://scoutbase-two.vercel.app` · API `https://scoutbase-api-a6qm.onrender.com` (**.app, não .com**).
+> **Regra de ouro:** credenciais (URL do banco, senha, SECRET_KEY, domínios CORS) ficam **só nos painéis** das plataformas — nunca no Git.
 
-- [ ] **Fase 12 � Deploy (colocar no ar):** frontend na Vercel, backend + Postgres gerenciados (Railway/Render/Supabase). Aprende: vari�veis de ambiente em produ��o, CORS em produ��o, build final, banco fora do Docker local. Pr�-requisito: nem portf�lio (recrutador clica), nem produto real funciona sem isso.
-- [ ] **Fase 13 � Testes automatizados (pytest):** aprendizado novo, item que mais aparece em vaga de emprego, e protege o que estar� no ar.
-- [ ] **Fase 14 � Busca avan�ada:** busca por texto (ILIKE) + filtros combinados no backend; campo de busca com debounce no frontend. Valor de produto: o olheiro acha "zagueiro sub-17 de SP com v�deo" em segundos.
-- [ ] **Depois (quando virar dinheiro):** pagamentos/planos, notifica��es, admin � construir s� com base est�vel.
+### Blocos
+
+- [x] **12.1 Repositório GitHub + `.gitignore`** ✅ (17/11/2026) — repo `jonatasjal/scoutbase` + `.gitignore` blindado (`.env`, `.venv`, `node_modules`, `dist`, `.vercel`, `media/`, `uvicorn.log`) — commit `1c0502b`
+- [x] **12.2 Banco no Supabase** ✅ (17/11/2026) — Postgres gerenciado (grátis) conectado pelo **Session pooler** (`aws-1-us-east-1.pooler.supabase.com:5432` — o pooler aceita a lib psycopg2); `alembic upgrade head` subiu as **11 tabelas**; banco **nasce vazio** (os dados de teste do Docker local não viajam). Sem commit — é painel + comando
+- [x] **12.3 Backend na Render** ✅ (17/11/2026) — Web Service ligado ao GitHub; Start = `alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT` (migra sozinho antes de servir); env vars **só no painel** (DATABASE_URL, SECRET_KEY, CORS_ORIGINS); plano grátis **dorme após 15 min** de inatividade (1º request da acordada leva ~50s). Commits: `deb212e` (CORS libera o domínio da Vercel + `API_BASE` de build sem `/api`), `3f102b1` (`python-multipart` — upload de vídeo quebrou só em produção), `d38d352` (CORS com o domínio exato de produção)
+- [x] **12.4 Frontend na Vercel** ✅ (17/11/2026) — build automático a cada push; **SPA fallback** no `vercel.json` (devolver `index.html` pra rota desconhecida) porque `/login`, `/cadastro` etc davam 404 no refresh — commit `77c79ac`
+- [x] **12.5 Teste na produção real + correções** ✅ (17/11/2026) — testar no ar achou 4 bugs que o localhost não mostrou: loading/erro na Minha Conta (`7362317`), Toast + botão "Salvar alterações" (`7c2b57a`), **olheiro sem form de ficha** → form na Minha Conta + `GET /olheiro` novo + erro de favoritar inline com link (`f69b298`), **responsável sem área** → seção "Meus vínculos" + `POST /responsaveis` agora barra ≥18 com 400 (`63dbc7c`)
+- [x] **12.6 Fecho** ✅ (18/11/2026) — este guia + `documentacao-projeto.md` + AGENTS.md; reparo da codificação mista do guia (23 bytes cp1252 → UTF-8, bloco do planejamento estava quebrado)
+
+### Lições
+
+- **Render (plano grátis) dorme** após 15 min sem tráfego — o 1º request leva ~50s; é esperado, não é bug (dormir = não gastar saldo grátis)
+- **`python-multipart` precisa estar no `requirements.txt`** mesmo com tudo rodando local: o proxy do Vite mascarava a falta; o upload só falhou na produção
+- **Vercel não tem proxy do Vite** — em produção o frontend fala direto com a API, então `API_BASE` muda em tempo de build (`/api` só existe no dev)
+- **CORS em produção = domínio exato** (protocolo + host, sem barra no final); `localhost:5173` não vale mais lá fora
+- **SPA fallback é obrigatório** em host estático: sem ele, dar F5 em `/login` = 404 (o servidor não conhece aquela rota — só o React sabe)
+- **Banco gerenciado nasce vazio** — as migrations sobem as tabelas, mas os dados de teste do Docker local **não viajam**; recadastrar na mão faz parte do deploy
+- **Credencial de produção nunca entra no Git** — fica nos painéis (Render/Vercel/Supabase); o `.gitignore` é a rede de segurança
+- **Teste no ar é obrigatório** — 4 bugs só apareceram na produção real (form faltando, erro sem mensagem amigável)
+- **Arquivo de texto pode ter codificação mista** (UTF-8 + cp1252 de edição antiga) — antes de editar, validar com `UTF8Encoding($false, $true)`; editar às cegas regrava os bytes quebrados e perde texto
+
+## Planejamento das próximas fases (definido em 12/11/2026)
+
+> Contexto: por enquanto projeto de **aprendizado**, mas sempre com **boas práticas de mercado** e preparado para virar **produto real que gera dinheiro** (pagamentos/planos ficam para depois — nem tocar agora).
+> Ordem escolhida: o que a gente **nunca fez** e que é pré-requisito para tudo (estar no ar) → o que o **mercado mais cobra** (testes) → valor de **produto** para o olheiro (busca).
+
+- [x] **Fase 12 — Deploy (colocar no ar) ✅ FECHADA em 18/11/2026:** frontend na Vercel, backend na Render, Postgres no Supabase. Aprendido: variáveis de ambiente em produção, CORS em produção, build final, banco fora do Docker local. Pronto: nem portfólio (recrutador clica), nem produto real funcionava sem isso.
+- [ ] **Fase 13 — Testes automatizados (pytest):** aprendizado novo, item que mais aparece em vaga de emprego, e protege o que estará no ar.
+- [ ] **Fase 14 — Busca avançada:** busca por texto (ILIKE) + filtros combinados no backend; campo de busca com debounce no frontend. Valor de produto: o olheiro acha "zagueiro sub-17 de SP com vídeo" em segundos.
+- [ ] **Depois (quando virar dinheiro):** pagamentos/planos, notificações, admin — construir só com base estável.

@@ -281,11 +281,19 @@ A lógica aqui é: **cada fase entrega algo que funciona e pode ser demonstrado*
 
 ---
 
-## 14. Estratégia de Publicação Local
+## 14. Estratégia de Publicação (local + produção)
 
+**Local (desenvolvimento):**
 - Todo o projeto sobe com `docker compose up`, reunindo três serviços: banco de dados, backend e frontend
 - Variáveis sensíveis (senha do banco, chave de token JWT) ficam em um arquivo de ambiente (`.env`), nunca direto no código
 - README documenta: requisitos para rodar (Docker instalado), passo a passo de subida, e como popular dados de exemplo
+
+**Produção (no ar desde a Fase 12, 17/11/2026):**
+- **Frontend → Vercel** (`https://scoutbase-two.vercel.app`): build automático a cada `git push`; `vercel.json` garante SPA fallback (rotas como `/login` não dão 404 no refresh)
+- **Backend → Render** (`https://scoutbase-api-a6qm.onrender.com`): Web Service ligado ao GitHub; comando Start `alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT` (aplica migrations e só então serve); plano grátis dorme após 15 min de inatividade
+- **Banco → Supabase** (Postgres gerenciado): conexão pelo Session pooler; `alembic upgrade head` cria as 11 tabelas; banco nasce vazio
+- **Credenciais ficam só nos painéis** (Render, Vercel, Supabase) — nunca no repositório; o `.gitignore` blinda o `.env`
+- **Deploy = `git push`** — as duas plataformas leem o GitHub e publicam sozinhas
 
 ---
 
@@ -378,7 +386,15 @@ A lógica aqui é: **cada fase entrega algo que funciona e pode ser demonstrado*
     - [x] 11.3 Botão 💬 Conversar no Perfil (usa `usuario_id`, escondido no próprio perfil) + badge N de não-lidas no Topo (refaz a cada troca de página)
     - Backend intocado (Fase 4 já cobre enviar/histórico/lidas/contador) — exceto o fix do 500
 
-**Endpoints que já respondem hoje:** `GET /health`, `GET /`, `POST /auth/cadastro`, `POST /auth/login`, `GET /auth/me`, `PUT /perfil/completar`, `GET /perfil/{id}`, `GET /perfil/{id}/videos`, `GET /perfil/{id}/estatisticas`, `POST /videos/upload`, `POST /estatisticas`, `GET /atletas`, `PUT /olheiro/completar`, `POST`/`DELETE /atletas/{id}/favoritar`, `GET /meus-favoritos`, `POST /mensagens`, `GET /mensagens/conversa/{id}`, `PUT /mensagens/lidas/{id}`, `GET /mensagens/nao-lidas`, `POST /responsaveis`, `GET /responsaveis/meus-vinculos`, `DELETE /responsaveis/{id}`, `POST /avaliacoes`, `GET /avaliacoes/{tipo}/{id}`, `GET /avaliacoes/minhas`, `GET /dashboard/top-atletas`, `GET /dashboard/ranking-olheiros`, `GET /dashboard/resumo`, `GET /perfil/{id}/visualizacoes` — e mídia em `/media/uploads/{arquivo}`.
+13. ✅ Fase 12 — Deploy (FECHADA em 18/11/2026):
+    - [x] 12.1 Repositório GitHub + `.gitignore` — commit `1c0502b`
+    - [x] 12.2 Banco Postgres no Supabase (Session pooler; migrations subiram as 11 tabelas; banco nasce vazio)
+    - [x] 12.3 Backend na Render (Start = migrations + uvicorn; env vars só no painel) — commits `deb212e` (CORS/API_BASE), `3f102b1` (python-multipart), `d38d352` (CORS de produção)
+    - [x] 12.4 Frontend na Vercel (build no push + SPA fallback no `vercel.json`) — commit `77c79ac`
+    - [x] 12.5 Teste na produção real + correções — `7362317` (loading/erro), `7c2b57a` (Toast + "Salvar alterações"), `f69b298` (form do olheiro + `GET /olheiro` novo + erro de favoritar inline), `63dbc7c` (área do responsável + checagem de menoridade no `POST /responsaveis`)
+    - [x] 12.6 Fecho documental — guia, documentação e AGENTS.md
+
+**Endpoints que já respondem hoje:** `GET /health`, `GET /`, `POST /auth/cadastro`, `POST /auth/login`, `GET /auth/me`, `PUT /perfil/completar`, `GET /perfil/{id}`, `GET /perfil/{id}/videos`, `GET /perfil/{id}/estatisticas`, `POST /videos/upload`, `POST /estatisticas`, `GET /atletas`, `PUT /olheiro/completar`, `GET /olheiro`, `POST`/`DELETE /atletas/{id}/favoritar`, `GET /meus-favoritos`, `POST /mensagens`, `GET /mensagens/conversa/{id}`, `PUT /mensagens/lidas/{id}`, `GET /mensagens/nao-lidas`, `POST /responsaveis`, `GET /responsaveis/meus-vinculos`, `DELETE /responsaveis/{id}`, `POST /avaliacoes`, `GET /avaliacoes/{tipo}/{id}`, `GET /avaliacoes/minhas`, `GET /dashboard/top-atletas`, `GET /dashboard/ranking-olheiros`, `GET /dashboard/resumo`, `GET /perfil/{id}/visualizacoes` — e mídia em `/media/uploads/{arquivo}`.
 
 **Testes validados na Fase 2 (até 13/10/2026):** cadastro→login→perfil do zero (TRUNCATE CASCADE); PUT idempotente (mesmo `id` em 2 chamadas); GET público 200/404/422; upload 201 com uuid no disco; `.txt` → 400; sem token → 401; `/media/...` → 200 `video/mp4` (inclusive com 304 de cache do navegador); `/perfil/1/videos` → 200 com 2 vídeos; `/perfil/999/videos` → 404. **14/10 (estatísticas):** POST 201 com upsert (atualiza em vez de duplicar); `valor: 0` → 422; sem token → 401; lista pública 200 com filtros; `?temporada=1999` → `[]`; `/perfil/999/estatisticas` → 404.
 
