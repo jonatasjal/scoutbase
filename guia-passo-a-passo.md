@@ -1308,6 +1308,25 @@ cd C:\Users\jonat\Desktop\ScoutBase\backend
 - **Fixture `create_all`/`drop_all` por teste** = cada teste começa com banco zerado e não depende da ordem em que roda
 - **Rota pública ≠ token qualquer vale** — `get_current_user` (exige) vs `get_current_user_optional` (aceita visitante): mas **token inválido tem que dar 401**, nunca 500 nem 200 silencioso
 
+## Fase 14 — Busca avançada (backend + frontend) — ✅ FECHADA em 19/11/2026
+
+> **Objetivo:** o olheiro acha "ribeirao" em segundos — busca por **texto livre** (nome, clube OU cidade) combinando com os filtros existentes, com campo de busca **com debounce** no frontend.
+> **Estado final:** `26 passed` no pytest · build do frontend OK · testado no navegador.
+
+### Blocos
+
+- [x] **14.1 Backend — parâmetro `busca`** ✅ (19/11/2026) — `GET /atletas?busca=...` com `or_(nome, clube_atual, cidade).ilike('%texto%')`, `strip()` ignora busca vazia; +5 testes em `test_atletas.py` (nome minúsculo, cidade, clube, combinado com estado, espaço em branco) — helper `criar_atleta` ganhou o parâmetro `clube`
+- [x] **14.2 Frontend — debounce 400ms** ✅ (19/11/2026) — `Vitrine.jsx` com **duas versões da busca** (`busca` = tecla a tecla, `buscaNaApi` = só quando para de digitar) via `setTimeout`/`clearTimeout` no `useEffect`; campo `<input type="search">` na barra de filtros + mensagem de vazio
+- [x] **14.3 Fecho** ✅ (19/11/2026) — checklist neste guia, item 15 na documentação, AGENTS.md, commit
+
+### Lições
+
+- **`is None` invertido quebrou 4 testes de uma vez** — o `if` errado tentou rodar `None.strip()` (crash) quando não havia busca, e **pulava o filtro** quando havia; um "e" trocado por "is not" derruba a função inteira
+- **`%texto` = "termina com"; `%texto%` = "contém"** — sem o `%` final, "ribeirao" não acha "Ribeirao Preto"; curinga do LIKE é simétrico
+- **Teste que depende 100% do recurso novo é o que pega o bug** — 4 dos 5 testes novos passaram "às cegas" (banco com 1 atleta ou outro filtro já reduzindo); só `test_busca_texto_no_nome` dependia só da busca
+- **Debounce = dois estados + timer** — o input atualiza a cada tecla, mas a API só recebe o valor final; `cleanup` do `useEffect` cancela o timer anterior senão dispara N requests
+- **`'''string'''` não é comentário** — funciona como expressão solta, mas é mau estilo; comentário em Python é `#`
+
 ## Planejamento das próximas fases (definido em 12/11/2026)
 
 > Contexto: por enquanto projeto de **aprendizado**, mas sempre com **boas práticas de mercado** e preparado para virar **produto real que gera dinheiro** (pagamentos/planos ficam para depois — nem tocar agora).
@@ -1315,5 +1334,6 @@ cd C:\Users\jonat\Desktop\ScoutBase\backend
 
 - [x] **Fase 12 — Deploy (colocar no ar) ✅ FECHADA em 18/11/2026:** frontend na Vercel, backend na Render, Postgres no Supabase. Aprendido: variáveis de ambiente em produção, CORS em produção, build final, banco fora do Docker local. Pronto: nem portfólio (recrutador clica), nem produto real funcionava sem isso.
 - [x] **Fase 13 — Testes automatizados (pytest) ✅ FECHADA em 18/11/2026:** 21 testes (auth, vitrine, regras de negócio) em SQLite em memória, rodando em ~19s sem Docker; suíte pegou e corrigiu bug real no `deps.py`. Aprendido: pytest + TestClient, fixture de banco, teste vermelho como desfecho. Protege o que está no ar e é o que o mercado mais cobra.
-- [ ] **Fase 14 — Busca avançada:** busca por texto (ILIKE) + filtros combinados no backend; campo de busca com debounce no frontend. Valor de produto: o olheiro acha "zagueiro sub-17 de SP com vídeo" em segundos.
+- [x] **Fase 14 — Busca avançada ✅ FECHADA em 19/11/2026:** busca por texto (ILIKE + `or_` em nome/clube/cidade) no backend com 5 testes novos (26 no total) + campo de busca com **debounce 400ms** na Vitrine. Valor de produto: o olheiro acha "zagueiro sub-17 de SP" em segundos.
 - [ ] **Depois (quando virar dinheiro):** pagamentos/planos, notificações, admin — construir só com base estável.
+- [ ] **Pendências soltas (escolher a próxima com o aluno):** `DELETE /conta` (LGPD), "esqueci minha senha", polish/UX, busca de vídeo.

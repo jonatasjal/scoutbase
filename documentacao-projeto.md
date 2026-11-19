@@ -277,7 +277,7 @@ A lógica aqui é: **cada fase entrega algo que funciona e pode ser demonstrado*
 
 - **Ferramenta:** pytest + `TestClient` do FastAPI; **banco SQLite em memória** por teste (`StaticPool` + `create_all`/`drop_all` na fixture `client`) — sem Docker, sem rede, sem tocar o banco real; ~19s para a suíte inteira
 - **Como rodar:** de dentro de `backend/`, `.\.venv\Scripts\python.exe -m pytest` (dependências só de dev em `requirements-dev.txt` — a produção não instala pytest)
-- **Cobertura hoje: 21 testes** — `test_smoke.py` (API viva), `test_auth.py` (cadastro/login/token com mensagens de erro exatas), `test_atletas.py` (vitrine, filtros, idade calculada, sem vazar e-mail/senha), `test_regras.py` (LGPD 400, duplicidade 409, permissão 403, token forjado 401)
+- **Cobertura hoje: 26 testes** — `test_smoke.py` (API viva), `test_auth.py` (cadastro/login/token com mensagens de erro exatas), `test_atletas.py` (vitrine, filtros, busca por texto em nome/clube/cidade, idade calculada, sem vazar e-mail/senha), `test_regras.py` (LGPD 400, duplicidade 409, permissão 403, token forjado 401)
 - **Regra de ouro:** o teste é **espelho do código** — strings de erro copiadas literal (acentos); se a API mudar de resposta, o teste acusa
 - **Primeiro bug pegado pela suíte (Fase 13):** `get_current_user_optional` duplicada no `deps.py` com `header=` (sem o "s") → token inválido daria 500 em vez de 401 — corrigido apagando a cópia errada
 - **Testes manuais guiados:** roteiro de "caminho feliz" (cadastro → perfil → busca → mensagem) para validar antes de cada entrega de fase
@@ -403,6 +403,11 @@ A lógica aqui é: **cada fase entrega algo que funciona e pode ser demonstrado*
     - [x] 13.3 `test_atletas.py` — 6 testes (vitrine, filtros, idade calculada, sem vazamento de dados, 404) + helper `criar_atleta`
     - [x] 13.4 `test_regras.py` — 6 testes (LGPD 201/400, duplicado 409, favoritar 201/409, 403 permissão, 401 token forjado); pegou e corrigiu bug real: `get_current_user_optional` duplicada no `deps.py` com `header=` → 500 em vez de 401
     - [x] 13.5 Fecho documental — guia, documentação e AGENTS.md
+
+15. ✅ Fase 14 — Busca avançada (FECHADA em 19/11/2026):
+    - [x] 14.1 Backend — parâmetro `busca` no `GET /atletas`: `or_` + `ilike` em nome, clube e cidade (combinável com posicao/estado/categoria); `strip()` ignora busca vazia; +5 testes (26 no total)
+    - [x] 14.2 Frontend — campo de busca na Vitrine com **debounce 400ms** (dois estados: `busca` a cada tecla, `buscaNaApi` quando para de digitar) + mensagem de vazio
+    - [x] 14.3 Fecho documental — guia, documentação e AGENTS.md
 
 **Endpoints que já respondem hoje:** `GET /health`, `GET /`, `POST /auth/cadastro`, `POST /auth/login`, `GET /auth/me`, `PUT /perfil/completar`, `GET /perfil/{id}`, `GET /perfil/{id}/videos`, `GET /perfil/{id}/estatisticas`, `POST /videos/upload`, `POST /estatisticas`, `GET /atletas`, `PUT /olheiro/completar`, `GET /olheiro`, `POST`/`DELETE /atletas/{id}/favoritar`, `GET /meus-favoritos`, `POST /mensagens`, `GET /mensagens/conversa/{id}`, `PUT /mensagens/lidas/{id}`, `GET /mensagens/nao-lidas`, `POST /responsaveis`, `GET /responsaveis/meus-vinculos`, `DELETE /responsaveis/{id}`, `POST /avaliacoes`, `GET /avaliacoes/{tipo}/{id}`, `GET /avaliacoes/minhas`, `GET /dashboard/top-atletas`, `GET /dashboard/ranking-olheiros`, `GET /dashboard/resumo`, `GET /perfil/{id}/visualizacoes` — e mídia em `/media/uploads/{arquivo}`.
 

@@ -18,7 +18,18 @@ export default function Vitrine() {
   const [posicao, setPosicao] = useState('')
   const [estado, setEstado] = useState('')
   const [categoria, setCategoria] = useState('')
+  // busca tem DUAS versões (é o segredo do debounce):
+  const [busca, setBusca] = useState('')              // o texto do input (muda a cada tecla)
+  const [buscaNaApi, setBuscaNaApi] = useState('')    // o que VAI na requisição (muda só qd você para)
   const [pagina, setPagina] = useState(1)
+
+  // DEBOUNCE: toda vez que o texto do input muda, espera 400ms...
+  useEffect(() => {
+    const timer = setTimeout(() => setBuscaNaApi(busca), 400)
+    // ...mas se digitou de novo antes dos 400ms, CANCELA o timer anterior
+    // (cleanup: o React roda isso quando 'busca' muda de novo ou a tela sai)
+    return () => clearTimeout(timer)
+  }, [busca])
 
   // useEffect = "roda quando ... muda"; [] = roda 1x ao abrir a tela
   // [posicao, estado, categoria, pagina] = refaz a busca quando algo muda
@@ -29,12 +40,13 @@ export default function Vitrine() {
     if (posicao) params.posicao = posicao
     if (estado) params.estado = estado
     if (categoria) params.categoria = categoria
+    if (buscaNaApi) params.busca = buscaNaApi   // texto livre (nome, clube ou cidade)
 
     api('/atletas', { params })
       .then(d => { setDados(d); setErro(null) })
       .catch(e => setErro(e.detail))   // client.js joga {status, detail}
       .finally(() => setCarregando(false))
-  }, [posicao, estado, categoria, pagina])
+  }, [posicao, estado, categoria, pagina, buscaNaApi])
 
   return (
     <div className="vitrine">
@@ -43,6 +55,13 @@ export default function Vitrine() {
 
       {/* barra de filtros */}
       <div className="filtros">
+        <input
+          type="search"
+          placeholder="🔍 Buscar nome, clube ou cidade…"
+          value={busca}
+          onChange={e => { setBusca(e.target.value); setPagina(1) }}
+        />
+
         <select value={posicao} onChange={e => { setPosicao(e.target.value); setPagina(1) }}>
           <option value="">Posição (todas)</option>
           <option value="goleiro">Goleiro</option>
@@ -68,6 +87,10 @@ export default function Vitrine() {
       {/* 3 estados possíveis da tela: carregando / erro / dados */}
       {carregando && <p>Carregando…</p>}
       {erro && <p className="erro">Erro: {erro}</p>}
+      {/* nada encontrado com os filtros atuais */}
+      {!carregando && !erro && dados.resultados.length === 0 && (
+        <p>Nenhum atleta encontrado. Tente outro filtro ou texto.</p>
+      )}
 
       <div className="grade">
         {dados.resultados.map(a => <CartaoAtleta key={a.id} atleta={a} />)}

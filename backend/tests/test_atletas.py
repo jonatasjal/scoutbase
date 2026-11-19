@@ -13,7 +13,8 @@
 # Devolve o JSON da ficha (que traz o 'id' do atleta).
 # ---------------------------------------------------------------------------
 def criar_atleta(client, nome, email, posicao, categoria, estado,
-                 cidade = 'Ribeirao Preto', data_nascimento = '2010-05-10'):
+                 cidade = 'Ribeirao Preto', data_nascimento = '2010-05-10',
+                 clube = None):
     # Passo 1: cria a conta (201)
     client.post('/auth/cadastro', json = {
         'nome': nome,
@@ -38,6 +39,7 @@ def criar_atleta(client, nome, email, posicao, categoria, estado,
             'categoria': categoria,
             'cidade': cidade,
             'estado': estado,
+            'clube_atual': clube
         },
         # Mesmo formato do frontend: 'Bearer <cracha>' (com ESPACO)
         headers = {'Authorization': f'Bearer {token}'},
@@ -145,3 +147,62 @@ def test_perfil_inexistente_404(client):
 
     assert resposta.status_code == 404
     assert resposta.json()['detail'] == 'Atleta não encontrado'
+
+
+# ==========================================================================
+# BUSCA AVANÇADA — texto livre combinando com os filtros
+# ==========================================================================
+def test_busca_texto_no_nome(client):
+    criar_atleta(client, 'Ana Teste', 'ana@teste.com', 'Zagueiro', 'Sub-17', 'SP')
+    criar_atleta(client, 'Bruno Silva', 'bruno@teste.com', 'Atacante', 'Sub-20', 'RJ')
+
+    # 'ana' MINUSCULO acha 'Ana Teste' - ilie ignora maiúscula/minúscula
+    resposta = client.get('/atletas', params = {'busca': 'ana'})
+    dados = resposta.json()
+
+    assert dados['total'] == 1
+    assert dados['resultados'][0]['nome'] == 'Ana Teste'
+
+def test_busca_texto_na_cidade(client):
+    # a cidade padrão do helper é 'Ribeirao Preto'
+    criar_atleta(client, 'Ana', 'ana@teste.com', 'Zagueiro', 'Sub-17', 'SP')
+
+    resposta = client.get('/atletas', params = {'busca': 'ribeirao'})
+
+    assert resposta.json()['total'] == 1
+
+
+def test_busca_texto_no_clube(client):
+    criar_atleta(
+        client, 'Ana', 'ana@teste.com', 'Zagueiro', 'Sub-17', 'SP',
+        clube = 'FC Exemplo',
+    )
+
+    resposta = client.get('/atletas', params = {'busca': 'exemplo'})
+
+    assert resposta.json()['total'] == 1
+
+
+def test_busca_combinada_com_estado(client):
+    # 'teste' sozinho achava OS DOIS nomes; + estado 'sp' sobra só Ana
+    criar_atleta(client, 'Ana Teste', 'ana@teste.com', 'Zagueiro', 'Sub-17', 'SP')
+    criar_atleta(client, 'Bruno Teste', 'bruno@teste.com', 'Atacante', 'Sub-20', 'RJ')
+
+    resposta = client.get(
+        '/atletas', params = {'busca': 'teste', 'estado': 'sp'},
+    )
+    dados = resposta.json()
+
+    assert dados['total'] == 1
+    assert dados['resultados'][0]['nome'] == 'Ana Teste'
+
+
+def test_busca_vazia_ignorada(client):
+    # espaço em branco = "não buscou nada" -> devolve a lista inteira
+    criar_atleta(client, 'Ana', 'ana@teste.com', 'Zagueiro', 'Sub-17', 'SP')
+
+    resposta = client.get('/atletas', params = {'busca': '   '})
+
+    assert resposta.json()['total'] == 1
+
+

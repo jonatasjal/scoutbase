@@ -14,6 +14,7 @@
 from datetime import date  # para calcular idade a partir da data
 
 from fastapi import APIRouter, Depends, Query
+from sqlalchemy import or_          # or_ = "OU" no WHERE (serve achar em qualquer campo)
 from sqlalchemy.orm import Session
 
 from app.database import get_db
@@ -40,6 +41,7 @@ def listar_atletas(
     posicao: str | None = None,      # busca "por trecho": "zague" acha "Zagueiro"
     estado: str | None = None,       # 2 letras: SP, RJ...
     categoria: str | None = None,    # sub-17, sub-20...
+    busca: str | None = None,        # texto livre: procura em nome, clube OU cidade
     # --- PAGINAÇÃO: com limites via Query (ge = mínimo, le = máximo) ---
     pagina: int = Query(1, ge = 1),                 # página começa no 1
     por_pagina: int = Query(20, ge = 1, le = 100),  # máx 100 por vez (senão...)
@@ -62,6 +64,19 @@ def listar_atletas(
         consulta = consulta.filter(Atleta.estado == estado.upper())
     if categoria is not None:
         consulta = consulta.filter(Atleta.categoria.ilike(f'%{categoria}%'))
+    if busca is not None and busca.strip() != '':
+        termo = f'%{busca.strip()}%'     # % = curinga do LIKE: 'contém o que foi digitado'
+        # or_ = OU: vale se achar em qualquer um dos 3 campos
+        # ilike = ignora maiúsculas/minusculas (busca "ana" e acha "Ana")
+        consulta = consulta.filter(
+            or_(
+                Usuario.nome.ilike(termo),
+                Atleta.clube_atual.ilike(termo),
+                Atleta.cidade.ilike(termo)
+            )
+        )
+        # Por que or_? Sem ele, o filtro pediria nome E clube E cidade ao mesmo tempo (ninguém tem tudo igual ao texto).
+        # Com OU, digitar "ribeirao" acha quem mora lá; digitar "FC Santos" acha quem é do clube.
 
     # TOTAL antes do LIMIT: quantos casaram com os filtros (aí o front sabe
     # quantas páginas existem). count() = SELECT COUNT(*) com os MESMOS filtros
