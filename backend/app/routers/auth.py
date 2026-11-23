@@ -26,11 +26,20 @@ from sqlalchemy.orm import Session
 # Tomada de conexão com o banco, model Usuario, schema de entrada/saída, hash de senha
 from app.database import get_db
 from app.models import Usuario, Atleta, TipoUsuario
-from app.schemas import UsuarioCadastro, UsuarioLogin, Token, UsuarioSaida, EuSaida
+from app.schemas import UsuarioCadastro, UsuarioLogin, Token, UsuarioSaida, EuSaida, EsqueciSenhaEntrada, EsqueciSenhaSaida, RedefinirSenhaEntrada
 # verificar_senha = confere a senha; criar_token = emite o crachá JWT
 from app.security import hash_senha, verificar_senha, criar_token
 # O guarda de porta: só entrega o usuário se o token da requisição for válido
 from app.deps import get_current_user
+
+# Fase 15: secrets = token aleatorio; hashlib = resumo (hash) do token
+import secrets
+import hashlib
+# datetime p/ calcular a validade (30 min) do token
+from datetime import datetime, timedelta, timezone
+# settings = configuracoes do .env (DEBUG, SMTP); enviar_email_reset = o "correio"
+from app.config import settings
+from app.email import enviar_email_reset
 
 # Cria o roteador: todas as rotas daqui terão o caminho inicial /auth
 router = APIRouter(prefix = '/auth', tags = ['auth'])
@@ -112,3 +121,34 @@ def meu_perfil(usuario: Usuario = Depends(get_current_user), db: Session = Depen
     # model_dump() = "desmonta" o schema em dicionário comum {...}
     dados = UsuarioSaida.model_validate(usuario).model_dump()
     return EuSaida(**dados, atleta_id = atleta_id)
+
+
+# ---------------------------------------------------------------------------
+# POST /auth/esqueci-senha — pede um token de redefinição (sem login)
+# ---------------------------------------------------------------------------
+@router.post('/esqueci-senha', response_model = EsqueciSenhaSaida)
+def esqueci_senha(dados: EsqueciSenhaEntrada, db: Session = Depends(get_db)):
+    # 1) Procura a conta (se não existir, a gente NEM AVISA - ver passo 3)
+    usuario = db.query(Usuario).filter(Usuario.email == dados.email).first()
+
+    token = None
+    if usuario:
+        # 2) token aleatório (com 43 caracteres) - dificulta adivinhação
+        token = secrets.token_urlsafe(32)
+        # Guardamos o RESUMO (sha26) não o token: banco vaza, token não serv
+        usuario.reset_token_hash = hashlib.sha256(token.encode('utf-8')).hexdigest()
+        # Validade: 30min a partir de AGORA (UTC sem fuso par ao banco não se confundir)
+        usuario.reset_token_expira = datetime.now(timezone.utc).replace(tzinfo = None) + timedelta(minutes = 30)
+        db.commit()     # grava o pedido no banco
+        # 3) Manda o e-mail (ou simula, se não tiver o SMTP)
+        enviar_email_reset(dados.email, token)
+
+    # 4) Resposta SEMPRE igual, exista conta ou não, pois se dissesse que "não existe"
+    # algum invasor usaria a rota para descobrir quais emails tem conta (através de enumeração)
+    resposta = {'detalhe': 'Se este e-mail estiver cadastrado, enviaremos instruções de redefinição'}
+
+    # 5) DEBUG = true (só na máquina local): devolve o token na resposta para testar
+    # sem precisar de SMTP. Em produção isso NUNCA rroda (debug = False)
+    if token and settings.debug:
+        resposta['token'] = token
+    return resposta

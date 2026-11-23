@@ -100,6 +100,13 @@ class Usuario(Base):
     # NUNCA a senha em TEXTO PURO, nós guardamos um "resumo" (hash) da senha
     # Comparar hashes funciona se o banco vazar, ninguém lê a senha real
 
+    # Recurso "esqueci minha senha": guardamos o HASH do token e NÃO O TOKEN
+    reset_token_hash: Mapped[str | None] = mapped_column(String(255))
+    # None = não tem pedido de reset aberto; sha256 do token, igual a senha:
+    # se o banco vazar, o token vaza de código e NÃO serve para nada
+    reset_token_expira: Mapped[datetime | None] = mapped_column(DateTime)
+    # None =  sem pedido, senão a hora limite (UTC) - token vira inúti depois dela
+
     tipo_usuario: Mapped[TipoUsuario] = mapped_column(
         Enum(TipoUsuario, name="tipo_usuario"), default=TipoUsuario.atleta
     )

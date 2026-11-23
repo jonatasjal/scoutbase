@@ -401,3 +401,17 @@ class VisualizacoesSaida(BaseModel):
   (sem login não dá pra saber quem foi -> não vira "visitante")
 - datetime já importado no topo do arquivo (linha 32)
 '''
+
+# ---------------------------------------------------------------------------
+# ENTRADA/SAIDA - Fase 15: "esqueci minha senha"
+# ---------------------------------------------------------------------------
+class EsqueciSenhaEntrada(BaseModel):
+    email: EmailStr         # só o email -> pedir o reset não exige estar logado
+
+class EsqueciSenhaSaida(BaseModel):
+    detalhe: str                # mensagem GENÉRICA (nunca revela se o email existe por segurança)
+    token: str | None = None    # só preenchido quando DEBUG = true (dev/deste)
+
+class RedefinirSenhaEntrada(BaseModel):
+    token: str                  # o recibo vindo do e-mail (ou do DEBUG)
+    senha: str= Field(min_length = 6, max_length = 72)      # mesmas regras do cadastro

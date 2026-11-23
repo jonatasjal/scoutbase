@@ -25,5 +25,16 @@ class Settings(BaseSettings):
     # Quanto tempo o token vale (em minutos) - vem do .env, default 60
     access_token_expire_minutes: int = 60
 
+    # Fase 15: DEBUG: true só NO PC LOCAL (devolver token para testar sem SMTP)
+    # Na Render não existe tal variável -> default é False -> nunca faz o token
+    debug: bool = False
+    # config de email (SMTP): enquanto vazias, o envio roda em MODO SIMULAÇÃO
+    # (imprime no console). Preencher depois = email de verdade
+    smtp_host: str| None = None
+    smtp_port: int = 587
+    smtp_user: str | None = None
+    smtp_password: str | None = None
+    smtp_from: str | None = None
+
 # Instancia as configurações uma única vez (singleton) para importar em todo o app
 settings = Settings()
